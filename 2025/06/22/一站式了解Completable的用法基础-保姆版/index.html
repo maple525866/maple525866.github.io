@@ -1,0 +1,870 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言在后端开发中，我们经常会使用线程池来异步执行任务，但是如果要进行异步编排任务可犯了难。线程池可不能按照一定顺序来执行相应任务，所以今天我们来讲讲Java8引入的，位于java.util.concurrent包下的CompletableFuture。 如图是依靠CompletableFuture来实现的异步并行任务，聚合结果的示意图：  Future😯要想了解CompletableFuture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一站式了解Completable的用法基础(保姆版)">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3Completable%E7%9A%84%E7%94%A8%E6%B3%95%E5%9F%BA%E7%A1%80-%E4%BF%9D%E5%A7%86%E7%89%88/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言在后端开发中，我们经常会使用线程池来异步执行任务，但是如果要进行异步编排任务可犯了难。线程池可不能按照一定顺序来执行相应任务，所以今天我们来讲讲Java8引入的，位于java.util.concurrent包下的CompletableFuture。 如图是依靠CompletableFuture来实现的异步并行任务，聚合结果的示意图：  Future😯要想了解CompletableFuture">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153642.jpg">
+<meta property="article:published_time" content="2025-06-22T07:45:24.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:48:03.768Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="Java并发编程">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153642.jpg">
+  
+  
+  
+  <title>一站式了解Completable的用法基础(保姆版) - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153642.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一站式了解Completable的用法基础(保姆版)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 15:45" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一站式了解Completable的用法基础(保姆版)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在后端开发中，我们经常会使用线程池来异步执行任务，但是如果要进行异步编排任务可犯了难。线程池可不能按照一定顺序来执行相应任务，所以今天我们来讲讲Java8引入的，位于<code>java.util.concurrent</code>包下的CompletableFuture。</p>
+<p>如图是依靠CompletableFuture来实现的异步并行任务，聚合结果的示意图：</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNpdkk1PwjAYx7_K8pyBANvYy0HDi6Ko8eLJjUPjyksc2zK3RCQkGGMC6oFET4oYT3rxJV48YPTL2MHHsLQQ1J767-_39GnTtmDPtTDoUPWRVxN2CqYj0JE1yEeHPJyXhXh8ScgZpP9Czh6FAB3sp8ozhaH8b5T-gwq_kUgRhzkGVwy2l0CeL6Juf1aXZ2iVofRfVGCoyJC4QByuMLjWQra9XRk_9cjnKTeW21xY5QIPxXngcY3FdSPqdaJB73s0Imf35P3tX4t1ZpWMyevJ-IpeqYadrOfZTWFyfE363fHoMhoOZmctMXfDmHxdkZthNOiMRwuBKxtM2TSmy7d3rA5i9A3qFuiBH-IYNLDfQNMIrSk1gbZsYBN0OrVwBYV2YILptGmZh5xd123MK303rNZAryD7gKbQs1CAC3VEH3ihYMfCft4NnQD0lMq2AL0Fh6CraiKjJZPpjCpqoqxoFDZBz4gJOanIqiiqsiQpitaOwRHrmUyoKUmTpIwqp2RNUzQpBtiqB66_xT8W-1_tH6OB3Wk"><img src="https://i-blog.csdnimg.cn/img_convert/c044196697a25ed6bc97096f01d9c64e.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="Future😯"><a href="#Future😯" class="headerlink" title="Future😯"></a>Future😯</h1><p>要想了解CompletableFuture，我们就得先来了解一下Future。<code>Future</code> 是 Java 中用于表示异步计算结果的接口，它允许你启动一个长时间运行的任务，并在之后获取该任务的结果，而无需阻塞主线程。以下是该接口的主要方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Future</span>&lt;V&gt; &#123;<br>    <span class="hljs-comment">//尝试取消此任务的执行。如果任务已经完成、或已取消、或者由于某些原因无法取消，则此尝试将失败。如果成功取消了任务的执行，返回 true</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-title function_">cancel</span><span class="hljs-params">(<span class="hljs-type">boolean</span> mayInterruptIfRunning)</span>;<br>    <span class="hljs-comment">// 判断任务是否被取消,如果在任务正常完成前被取消，则返回 true</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isCancelled</span><span class="hljs-params">()</span>;<br>    <span class="hljs-comment">// 判断任务是否已经执行完成,无论任务是正常完成、异常终止还是被取消，只要任务完成就返回true</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isDone</span><span class="hljs-params">()</span>;<br>    <span class="hljs-comment">// 阻塞式获取任务执行结果，如果有错误发生（如任务抛出异常）</span><br>    V <span class="hljs-title function_">get</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException, ExecutionException;<br>    <span class="hljs-comment">// 阻塞式获取任务执行结果，指定时间内没有返回计算结果就抛出 TimeOutException 异常</span><br>    V <span class="hljs-title function_">get</span><span class="hljs-params">(<span class="hljs-type">long</span> timeout, TimeUnit unit)</span> <span class="hljs-keyword">throws</span> InterruptedException, ExecutionException, TimeoutExceptio<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，虽然 <code>Future</code> 提供了一种处理异步操作结果的方式，但它缺乏一些更高级的功能，比如组合多个异步操作的结果、异常处理等。</p>
+<h1 id="CompletableFuture😎"><a href="#CompletableFuture😎" class="headerlink" title="CompletableFuture😎"></a>CompletableFuture😎</h1><p>因Future的局限性，Java8引入CompletableFuture来解决Future的不足，而且还带来了新特性，让我们一起来看看。</p>
+<h2 id="创建CompletableFuture😪"><a href="#创建CompletableFuture😪" class="headerlink" title="创建CompletableFuture😪"></a>创建CompletableFuture😪</h2><p><strong>1.new（即手动创建CompletableFuture）：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CompletableFuture</span>&lt;&gt;();<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>可以在后续通过 <code>.complete()</code> 或 <code>.completeExceptionally()</code> 手动设置结果或异常。</li>
+<li><strong>适合</strong>：需要跨线程通信、事件驱动等自定义控制流程的场景</li>
+</ul>
+<p><strong>2.工厂方法 <code>supplyAsync()</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;U&gt; CompletableFuture&lt;U&gt; <span class="hljs-title function_">supplyAsync</span><span class="hljs-params">(Supplier&lt;U&gt; supplier)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;U&gt; CompletableFuture&lt;U&gt; <span class="hljs-title function_">supplyAsync</span><span class="hljs-params">(Supplier&lt;U&gt; supplier, Executor executor)</span><br></code></pre></td></tr></table></figure>
+<p>两者的区别在于是否传入自定义线程池，前者使用默认线程池ForkJoinPool.commonPool()，后者可传入自定义的线程池。这个方法创建的CompletableFuture可执行一个带返回值的异步任务。</p>
+<p><strong>3.工厂方法 <code>runAsync()</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> CompletableFuture&lt;Void&gt; <span class="hljs-title function_">runAsync</span><span class="hljs-params">(Runnable runnable)</span> <br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> CompletableFuture&lt;Void&gt; <span class="hljs-title function_">runAsync</span><span class="hljs-params">(Runnable runnable, Executor executor)</span><br></code></pre></td></tr></table></figure>
+<p>这两个方法的区别和supplyAsync()的两者区别一样。这个方法创建的CompletableFuture可执行一个没有返回值的异步任务。</p>
+<p><strong>4. <code>completedFuture()</code>创建已完成状态的 Future</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;U&gt; CompletableFuture&lt;U&gt; <span class="hljs-title function_">completedFuture</span><span class="hljs-params">(U value)</span><br></code></pre></td></tr></table></figure>
+<p>直接创建一个已经完成并带有结果的 <code>CompletableFuture</code>，可以用于测试、快速返回已知结果、跳过某些分支逻辑</p>
+<p>其实这个方法底层用的是new，即手动创建CompletableFuture，封装起来罢了😗</p>
+<h2 id="组合编排CompletableFuture🫨"><a href="#组合编排CompletableFuture🫨" class="headerlink" title="组合编排CompletableFuture🫨"></a>组合编排CompletableFuture🫨</h2><p>上面说了CompletableFuture可以进行异步组合编排任务，那么到底是怎么样进行组合编排的呢？</p>
+<h3 id="链式调用-thenCompose"><a href="#链式调用-thenCompose" class="headerlink" title="链式调用.thenCompose()"></a>链式调用<code>.thenCompose()</code></h3><p>这个方法主要用于<strong>异步任务的串行编排</strong>。简单来说，<code>thenCompose()</code> 用于将一个异步任务的结果作为输入，继续发起一个新的异步任务，形成一条异步流水线。</p>
+<p>在下面这个例子中，通过工厂方法创建了一个CompletableFuture之后，接着将结果输入给新CompletableFuture作为参数，然后输出结果。</p>
+<ol>
+<li>第一个任务返回 <code>&quot;Hello&quot;</code>；</li>
+<li>第二个任务接收 <code>&quot;Hello&quot;</code>，并异步返回 <code>&quot;Hello World&quot;</code>；</li>
+<li><code>thenCompose()</code> 把两个 Future <strong>合并成一个连续的 Future</strong>，而不是嵌套的 <code>CompletableFuture&lt;CompletableFuture&lt;String&gt;&gt;</code>。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Hello&quot;</span>)<br>    .thenCompose(s -&gt; CompletableFuture.supplyAsync(() -&gt; s + <span class="hljs-string">&quot; World&quot;</span>));<br><br>System.out.println(future.join()); <span class="hljs-comment">// 输出 Hello World</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>太简单了？来点难度的，模拟多级异步调用。<br>假设你有如下三个服务接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 获取 token</span><br>CompletableFuture&lt;String&gt; <span class="hljs-title function_">login</span><span class="hljs-params">(String username)</span> &#123;<br>    <span class="hljs-keyword">return</span> CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;token-&quot;</span> + username);<br>&#125;<br><br><span class="hljs-comment">// 根据 token 获取用户信息</span><br>CompletableFuture&lt;User&gt; <span class="hljs-title function_">getUserInfo</span><span class="hljs-params">(String token)</span> &#123;<br>    <span class="hljs-keyword">return</span> CompletableFuture.supplyAsync(() -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(token));<br>&#125;<br><br><span class="hljs-comment">// 根据用户信息获取订单列表</span><br>CompletableFuture&lt;List&lt;Order&gt;&gt; <span class="hljs-title function_">getOrders</span><span class="hljs-params">(User user)</span> &#123;<br>    <span class="hljs-keyword">return</span> CompletableFuture.supplyAsync(() -&gt; Arrays.asList(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Order</span>(<span class="hljs-string">&quot;1001&quot;</span>), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Order</span>(<span class="hljs-string">&quot;1002&quot;</span>)));<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>使用 <code>thenCompose()</code> 编排整个流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;List&lt;Order&gt;&gt; ordersFuture = login(<span class="hljs-string">&quot;alice&quot;</span>)<br>    .thenCompose(token -&gt; getUserInfo(token))<br>    .thenCompose(user -&gt; getOrders(user));<br><br>List&lt;Order&gt; orders = ordersFuture.join();<br>orders.forEach(order -&gt; System.out.println(<span class="hljs-string">&quot;订单ID：&quot;</span> + order.id));<br></code></pre></td></tr></table></figure>
+
+<p>这样我们就通过thenCompose()实现了多个异步服务的链式调用，下面是一个链式调用的简单示意图<br><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNqNkstuwjAQRX_FGrYBBfJyvKhEoOy6aVk1YWHIhEQkdmQ7aini35sHr0Vb1ZKlmdG5c-XxnGAnUwQGe8XrnKyXiSDtmcdvhiuzIePxE1lzfZgP9T6MF7KqSzR8W-KqMY1CMicZml2-5IbP9VHsLsIcRcdKjRf5vRCbe0w-CpP3vUl0t4zultEPlhGpldyh1p3poHoW6SvqpjSD8pbGq0LwkgzJDY3bS2RGFjkvxCYRg0ibY9m_pyhLNsrCzNJGyQOykeM4j0inHqDt9leon9e1F0c7oH-R0f_Ih8ENPJ-mbmg_8mC1H1qkwIxq0IIKVcW7FE5dpwTa4VeYAGvDFDPejQwScW5lNRfvUlZXpZLNPgeW8VK3WVOn3OCy4O22VLeqQpGiWshGGGCzWd8D2Ak-gVE68UPbnvnUCR0vCKkFR2C-M_HswKOOQz3XDYLwbMFXb2pP6NQNXdenrmd7rj_zLcC0MFK9DGvab-v5G3F23NE"><img src="https://i-blog.csdnimg.cn/img_convert/b1190ad1a9526048b7550971ea57f1f6.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h3 id="合并处理-thenCombine"><a href="#合并处理-thenCombine" class="headerlink" title="合并处理.thenCombine()"></a>合并处理<code>.thenCombine()</code></h3><p>上面讲解了如何链式调用任务，属于是微信接龙形态的（hh，开个玩笑），现在我们来讲<strong>并行执行两个异步任务，并将它们的结果合并处理</strong>。</p>
+<p>简单来说，**<code>thenCombine()</code> 用于将两个独立的 <code>CompletableFuture</code> 的结果进行合并处理，返回一个新的结果**，就能实现这样的效果。</p>
+<p>适合用于：</p>
+<ul>
+<li>同时发起多个异步请求（如查询用户信息、查询订单信息）</li>
+<li>然后在两者都完成后，把结果合并输出</li>
+</ul>
+<p>废话不多说，例子走起：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future1 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Hello&quot;</span>);<br>CompletableFuture&lt;String&gt; future2 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;World&quot;</span>);<br><span class="hljs-comment">//第一个参数是另一个异步任务，第二个参数是合并结果的具体逻辑</span><br>CompletableFuture&lt;String&gt; combinedFuture = future1.thenCombine(future2, (result1, result2) -&gt; &#123;<br>    <span class="hljs-keyword">return</span> result1 + <span class="hljs-string">&quot; &quot;</span> + result2; <span class="hljs-comment">// 合并结果</span><br>&#125;);<br><br>System.out.println(combinedFuture.join()); <span class="hljs-comment">// 输出 Hello World</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>future1</code> 和 <code>future2</code> 是<strong>并行执行</strong>的。</li>
+<li>当两者都完成时，使用 <code>thenCombine()</code> 将它们的结果拼接起来。</li>
+</ul>
+<p>不够接近真实业务？上点难度：</p>
+<p>假设你有两个服务接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 模拟根据用户ID获取用户名</span><br>CompletableFuture&lt;String&gt; <span class="hljs-title function_">fetchUserName</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span> &#123;<br>    <span class="hljs-keyword">return</span> CompletableFuture.supplyAsync(() -&gt; &#123;<br>        <span class="hljs-comment">// 模拟网络延迟</span><br>        Thread.sleep(<span class="hljs-number">500</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Alice&quot;</span>;<br>    &#125;);<br>&#125;<br><br><span class="hljs-comment">// 模拟根据用户ID获取订单数量</span><br>CompletableFuture&lt;Integer&gt; <span class="hljs-title function_">fetchOrderCount</span><span class="hljs-params">(String userName)</span> &#123;<br>    <span class="hljs-keyword">return</span> CompletableFuture.supplyAsync(() -&gt; &#123;<br>        Thread.sleep(<span class="hljs-number">800</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">5</span>;<br>    &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以这样使用 <code>thenCombine()</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">userId</span> <span class="hljs-operator">=</span> <span class="hljs-number">123</span>;<br><br>CompletableFuture&lt;String&gt; userFuture = fetchUserName(userId);<br>CompletableFuture&lt;Integer&gt; orderFuture = fetchOrderCount(<span class="hljs-string">&quot;Alice&quot;</span>); <span class="hljs-comment">// 假设已知用户名</span><br><br>CompletableFuture&lt;String&gt; resultFuture = userFuture.thenCombine(orderFuture, (name, count) -&gt; &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;用户：&quot;</span> + name + <span class="hljs-string">&quot;，订单数：&quot;</span> + count;<br>&#125;);<br><br>System.out.println(resultFuture.join());<br><span class="hljs-comment">// 输出：用户：Alice，订单数：5</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>thenCombine()</code> 不会等待两个 Future 的异常状态，如果其中一个失败，整个 Future 也会失败。</li>
+<li>如果你想处理异常或提供默认值，可以结合 <code>.exceptionally()</code> 或 <code>.handle()</code> 使用。</li>
+</ul>
+<p><strong>进阶：链式调用多个 <code>thenCombine()</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;Integer&gt; f1 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-number">10</span>);<br>CompletableFuture&lt;Integer&gt; f2 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-number">20</span>);<br>CompletableFuture&lt;Integer&gt; f3 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-number">30</span>);<br><br>CompletableFuture&lt;Integer&gt; result = f1.thenCombine(f2, Integer::sum)<br>                                     .thenCombine(f3, Integer::sum);<br><br>System.out.println(result.join()); <span class="hljs-comment">// 输出 60</span><br></code></pre></td></tr></table></figure>
+
+<p>下面是一个简单的thenCombine()的示意图：<br><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNqNk0tLxDAUhf9KuG7rMH2nWQjz0J0g6MrWRaa5nZZpkyFNQR3mv5tpOr5QMdCQe_jOaXuTHKBUAoHBVvN9TR7WhSR2LPJ7w7V5IpeXV-SB97vFpL8LSye4eSTyler2LRq-afFmMINGi1doynrNDfddlmU2jcQP2_IH2_LDFvxgc_Mk5aZGOa1Jh3qLRGM_tKZ3zjutSuz7iRDO-03Mp5qUkzBFuIRrKXL7EFWRVc0b-VRIl9Kbl3b8x6Zt2UWVVV5vtNohuwjD8DNycjtos_kVGnt4zuI4T-lf5PJf5LkvjuW-iLL5b-y3nkyeUgiKX74ZPHtWGgHM6AE9sC3v-KmEwymtALsfHRbA7FJgxW0bCyjk0dr2XD4q1Z2dWg3bGljF295Ww15wg-uG24PYvasapUC9UoM0wAI6ZgA7wDMwSmdxFARJnGRh4MdR6MELsCScpUHmZzTOEpokYXr04HV86XxG_SiLonSextRPo9gDFI1R-tZdgPEeHN8AOOP5Ew"><img src="https://i-blog.csdnimg.cn/img_convert/3e7186f907af91c4ead92daabaf9969c.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h3 id="等待全部allOf"><a href="#等待全部allOf" class="headerlink" title="等待全部allOf()"></a>等待全部<code>allOf()</code></h3><p>上面两个方法所要求的异步任务之间都是有联系的，但是实际上我们业务也有很多没关联的异步任务，比如文件上传，下载等，需要同时开启多个任务来执行，<strong>等待全部完成</strong>之后再统一返回结果或者成功标识。</p>
+<p><code>allOf()</code>就可以完成这样的效果，它可以用于<strong>并行执行多个异步任务</strong>、并在<strong>所有任务完成后再继续后续操作</strong>。但是它不会<strong>不会自动聚合各个 Future 的结果</strong>（不关心是否返回结果，完成就行），你需要手动获取每个 Future 的值。</p>
+<p>基本用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future1 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Result1&quot;</span>);<br>CompletableFuture&lt;String&gt; future2 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Result2&quot;</span>);<br>CompletableFuture&lt;String&gt; future3 = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Result3&quot;</span>);<br><span class="hljs-comment">//你直接对allFutures使用join()是无法获取结果的,因为allOf()不关心结果</span><br>CompletableFuture&lt;Void&gt; allFutures = CompletableFuture.allOf(future1, future2, future3);<br><br>allFutures.thenRun(() -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;所有任务已完成！&quot;</span>);<br>    System.out.println(<span class="hljs-string">&quot;future1: &quot;</span> + future1.join());<br>    System.out.println(<span class="hljs-string">&quot;future2: &quot;</span> + future2.join());<br>    System.out.println(<span class="hljs-string">&quot;future3: &quot;</span> + future3.join());<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>如果任意一个 Future 抛出异常，整个 <code>allOf</code> 也会失败，可以使用<code>.exceptionally()</code> 或 <code>.handle()</code> 来捕获和处理异常。</p>
+<p><strong>进阶：结合 <code>thenApply()</code> 聚合结果</strong><br>如果你想在所有任务完成后<strong>合并结果</strong>，可以这样做：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;List&lt;String&gt;&gt; combinedFuture = CompletableFuture.allOf(future1, future2, future3)<br>    .thenApply(v -&gt; List.of(<br>        future1.join(),<br>        future2.join(),<br>        future3.join()<br>    ));<br><br>List&lt;String&gt; results = combinedFuture.join();<br>System.out.println(results); <span class="hljs-comment">// 输出 [Result1, Result2, Result3]</span><br></code></pre></td></tr></table></figure>
+
+<p>以下是allOf()的一个简单示意图：<br><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNqNk91q4zAQhV9FTG-d4MSOf8RSSJz2bsnFFhbW7oVijRpTWTKyzG435N1XseKmhXapQEIz-s4ZNEhHqDVHoPBkWHcgD9tKETd-WGZsOa6PZDa7JQ-sf16_OXtNbj5KFpXy6VFWnleyJjMi0NaHLbPMm66l3IkruPHgxoGd0TX2_YdY4bFixLBjBt9hHhyD8idrLBHaECYlsU51cdypQredRIuevsblTpHa7xutvu3N7XqSEq7VpdSd4qWbRAtyL_Xvx6lqb18kXnohGinpjchF0Fujn5HeRFH0FjsbeGi__xQaGzh5MQzT7H_k5stk8SVy7OJEirqu95-R1w5e8JrzDN9dCwL3yBoO1JoBA2jRtOwcwvFsVIE9YIsVULflKNggbQWVOjlZx9QvrdtJafTwdAAqmOxdNHScWdw2zL3g9jVrUHE0hR6UBRrFowfQI_wBmibzMM-ScJUso3CxWC4DeAGaRPM8yeJslUcrdxJmySmAv2PVcJ4t4jyO0zBdZYs0jvMAkDdWm-_-74xf6PQP5SIH1g"><img src="https://i-blog.csdnimg.cn/img_convert/7db9f23390d03c933aa276ae265789c6.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h3 id="就等一个anyOf"><a href="#就等一个anyOf" class="headerlink" title="就等一个anyOf()"></a>就等一个<code>anyOf()</code></h3><p><code>anyOf()</code>用于<strong>并行执行多个异步任务</strong>、并在<strong>第一个任务完成（无论成功或失败）后立即返回结果</strong>的场景</p>
+<p>适合用于：</p>
+<ul>
+<li>多个服务提供者并发调用，取<strong>最快响应</strong></li>
+<li>实现“超时降级”逻辑</li>
+<li>异常容忍：只要有一个 Future 成功即可继续流程</li>
+</ul>
+<p>基本用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future1 = CompletableFuture.supplyAsync(() -&gt; &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Thread.sleep(<span class="hljs-number">1000</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Result from future1&quot;</span>;<br>&#125;);<br><br>CompletableFuture&lt;String&gt; future2 = CompletableFuture.supplyAsync(() -&gt; &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Thread.sleep(<span class="hljs-number">500</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Result from future2&quot;</span>;<br>&#125;);<br><br>CompletableFuture&lt;String&gt; future3 = CompletableFuture.supplyAsync(() -&gt; &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Thread.sleep(<span class="hljs-number">800</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Result from future3&quot;</span>;<br>&#125;);<br><br>CompletableFuture&lt;Object&gt; resultFuture = CompletableFuture.anyOf(future1, future2, future3);<br><br>System.out.println(<span class="hljs-string">&quot;最快完成的是：&quot;</span> + resultFuture.join());<br></code></pre></td></tr></table></figure>
+
+<p><strong>进阶：结合 <code>filter()</code> 和 <code>handle()</code> 做降级处理</strong><br>你可以使用 <code>.handle()</code> 来统一处理成功&#x2F;失败情况：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; fastFuture = CompletableFuture.anyOf(future1, future2, future3)<br>    .handle((result, ex) -&gt; &#123;<br>        <span class="hljs-keyword">if</span> (ex != <span class="hljs-literal">null</span>) &#123;<br>            System.err.println(<span class="hljs-string">&quot;发生异常：&quot;</span> + ex.getCause());<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;默认值&quot;</span>; <span class="hljs-comment">// 异常降级</span><br>        &#125;<br>        <span class="hljs-keyword">return</span> result.toString(); <span class="hljs-comment">// 正常返回</span><br>    &#125;);<br><br>System.out.println(fastFuture.join());<br></code></pre></td></tr></table></figure>
+
+<p>下面是anyOf()的简单示意图<br><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNptkk1LwzAYx79KeM5d6fpm14PgNudUxIsn2x2KTd3AtqO2oI7BDgrqVAZ60jERDxNx6kUYzJcvs7Z-DLO0EybmlH9-vzxPSNKALdfEoMK2Z9SraKOoO4iMBS18b4X9dgVlMvMor4Wdl_D0AVmBH3g4W0klCguzkJ-BxVkoEJjgPMWLWloRRSf977uz8XDAsmxaoUCVUqrw_ylFqiylivBXSaRFKpUbhrO_bqF4cBJ-HjUTVEpQEpamIYllGpe16L4VvbXD49fotjMePqIS7YXC57PouJOeY5m6K9r311V404ufnsbDFnETJ74-jEeXUa-byitUXiU3cxGPBtHl-fijG4_6kzk9fgUY8ho1E1TfCzADNvZsYxKhMSmgg1_FNtZBJVMTW0aw4-ugO02yrW44m65rT3d6brBdBdUydnZJCuqm4eNizSBPbf-uetgxsVdwA8cHVVBoDVAbsAfqnMxyOUXmJJkXuGyW5xnYB1UW2JysiIqUEyRCOEVuMnBAu3KskhVzokiwxEmizMsMYLPmu95a8snoX2v-ABHM6VQ"><img src="https://i-blog.csdnimg.cn/img_convert/06dfa333c4ac57d9d149880829b3e631.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h2 id="处理CompletableFuture异步结果😵"><a href="#处理CompletableFuture异步结果😵" class="headerlink" title="处理CompletableFuture异步结果😵"></a>处理CompletableFuture异步结果😵</h2><p>上面讲了这么多异步编排的方法，那么可不可以对单个异步任务进行处理的方法呢？有的，兄弟，有的，这样常用的方法有四个🤣</p>
+<h3 id="thenApply"><a href="#thenApply" class="headerlink" title="thenApply()"></a><code>thenApply()</code></h3><p><code>thenApply()</code> 是 <code>CompletableFuture</code> 提供的一个方法，用于在<strong>异步任务完成之后</strong>，对结果进行<strong>转换处理</strong>。它返回一个新的 <code>CompletableFuture</code>，表示经过转换后的新结果。</p>
+<p><strong>特点：</strong></p>
+<ul>
+<li><strong>串行执行</strong>：前一个任务完成后，才执行 <code>thenApply()</code> 中的任务。</li>
+<li><strong>有返回值</strong>：<code>thenApply()</code> 会返回一个新的结果（即转换后的结果）。</li>
+<li>类似于函数式编程中的 <code>map</code> 操作。</li>
+</ul>
+<p>基本用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Hello&quot;</span>);<br><br><span class="hljs-comment">//输出是Hello World</span><br>future.thenApply(result -&gt; result + <span class="hljs-string">&quot; World&quot;</span>)<br>       .thenAccept(finalResult -&gt; System.out.println(finalResult));<br></code></pre></td></tr></table></figure>
+
+<h3 id="thenAccept-和thenRun"><a href="#thenAccept-和thenRun" class="headerlink" title="thenAccept()和thenRun()"></a><code>thenAccept()</code>和<code>thenRun()</code></h3><p>现在着重讲一下这两个方法的区别。</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenAccept()</code></td>
+<td><strong>消费结果</strong>，接收上一个任务的结果，但不返回新的值（无返回）</td>
+</tr>
+<tr>
+<td><code>thenRun()</code></td>
+<td><strong>执行动作</strong>，不接收上一个任务的结果，只在任务完成后执行一段逻辑</td>
+</tr>
+</tbody></table>
+<p>它们都是用于在 <code>CompletableFuture</code> 完成后做一些后续处理，<strong>常用于链式调用中的“副作用”操作</strong>。</p>
+<p>与 <code>thenApply()</code> 的区别？</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>是否接收前一个 Future 的结果</th>
+<th>是否有返回值</th>
+<th>是否支持链式调用</th>
+<th>是否异步</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenApply()</code></td>
+<td>✅ 是</td>
+<td>✅ 是（新值）</td>
+<td>✅ 支持</td>
+<td>✅ 异步</td>
+</tr>
+<tr>
+<td><code>thenAccept()</code></td>
+<td>✅ 是</td>
+<td>❌ 否（void）</td>
+<td>❌ 不传递值</td>
+<td>✅ 异步</td>
+</tr>
+<tr>
+<td><code>thenRun()</code></td>
+<td>❌ 否</td>
+<td>❌ 否（void）</td>
+<td>❌ 不传递值</td>
+<td>✅ 异步</td>
+</tr>
+</tbody></table>
+<p><code>thenAccept()</code>的基本用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Hello&quot;</span>);<br><br>future.thenAccept(result -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;接收到结果: &quot;</span> + result);<br>&#125;);<br></code></pre></td></tr></table></figure>
+<ul>
+<li>接收上一个 Future 的结果作为输入</li>
+<li>执行一个消费型操作（如打印、写日志、入库等）</li>
+<li><strong>没有返回值</strong></li>
+</ul>
+<p><code>thenRun()</code>的基本用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;Void&gt; future = CompletableFuture.runAsync(() -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;正在执行主任务...&quot;</span>);<br>&#125;);<br><br>future.thenRun(() -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;主任务完成，执行后续清理操作&quot;</span>);<br>&#125;);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>不接收上一个 Future 的结果</strong></li>
+<li>只在 Future 完成后执行一个 Runnable 任务</li>
+<li>适合用于执行一些不需要依赖结果的后续操作，比如发送通知、清理资源等</li>
+</ul>
+<p>注意：这两个方法都不会影响链式调用的返回值！一个负责消费结果，另一个负责后续动作。</p>
+<h3 id="whenComplete"><a href="#whenComplete" class="headerlink" title="whenComplete()"></a><code>whenComplete()</code></h3><p><strong><code>whenComplete()</code> 是一个回调方法，用于在 Future 完成（无论是正常完成还是异常完成）后执行一段逻辑。</strong></p>
+<p>常用于：</p>
+<ul>
+<li>日志记录</li>
+<li>资源清理</li>
+<li>异常监控</li>
+<li>最终结果处理</li>
+</ul>
+<p><strong>基本用法：正常完成</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; <span class="hljs-string">&quot;Hello World&quot;</span>)<br>    .whenComplete((result, throwable) -&gt; &#123;<br>        <span class="hljs-keyword">if</span> (throwable == <span class="hljs-literal">null</span>) &#123;<br>            System.out.println(<span class="hljs-string">&quot;任务完成，结果为: &quot;</span> + result);<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            System.err.println(<span class="hljs-string">&quot;任务出错: &quot;</span> + throwable.getMessage());<br>        &#125;<br>    &#125;);<br><br>System.out.println(future.join()); <span class="hljs-comment">// 输出 Hello World</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>基本用法：异常处理</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java">CompletableFuture&lt;Integer&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;出错了！&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">42</span>;<br>&#125;).whenComplete((result, throwable) -&gt; &#123;<br>    <span class="hljs-keyword">if</span> (throwable != <span class="hljs-literal">null</span>) &#123;<br>        System.err.println(<span class="hljs-string">&quot;捕获到异常：&quot;</span> + throwable.getMessage());<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;任务成功完成，结果是：&quot;</span> + result);<br>    &#125;<br>&#125;);<br><br><span class="hljs-comment">// 可以继续链式调用</span><br>future.thenAccept(System.out::println); <span class="hljs-comment">// 不会执行，因为前面抛异常了</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="CompletableFuture与线程池😈"><a href="#CompletableFuture与线程池😈" class="headerlink" title="CompletableFuture与线程池😈"></a>CompletableFuture与线程池😈</h1><p>CompletableFuture与线程池并不是相互矛盾的，而是相辅相成的。他们都有各自注重的领域，一个更注重异步任务编排，一个更加注重线程资源的管理。而且我们非常推荐使用自定义的线程池来使用CompletableFuture！</p>
+<p>ps：如果都是用同一个默认线程池如 <code>ForkJoinPool.commonPool()</code>，可能会发生资源争抢等问题！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 使用 supplyAsync 并指定自定义线程池</span><br>CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;<br>    System.out.println(<span class="hljs-string">&quot;当前线程：&quot;</span> + Thread.currentThread().getName());<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Hello&quot;</span>;<br>&#125;, customExecutor);<br></code></pre></td></tr></table></figure>
+
+<h1 id="join-和-get-😫"><a href="#join-和-get-😫" class="headerlink" title="join() 和 get()😫"></a>join() 和 get()😫</h1><p>在使用 <code>CompletableFuture</code> 时，选择 <code>join()</code> 还是 <code>get()</code> 主要取决于你对异常处理的需求以及是否需要更细粒度的控制超时。两者的主要区别在于它们如何处理异常和超时：</p>
+<p> <code>join()</code></p>
+<ul>
+<li><strong>抛出未经检查的异常（Unchecked Exceptions）</strong> ：如果 Future 完成时带有异常，<code>join()</code> 会抛出一个未检查的 <code>CompletionException</code>，这使得代码看起来更加简洁，尤其是在 Lambda 表达式中。</li>
+<li><strong>不支持超时参数</strong>：如果你不需要设置超时时间来等待结果，<code>join()</code> 是一个不错的选择。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> future.join();<br>&#125; <span class="hljs-keyword">catch</span> (CompletionException e) &#123;<br>    <span class="hljs-comment">// 处理异常</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>get()</code></p>
+<ul>
+<li><strong>抛出经检查的异常（Checked Exceptions）</strong> ：包括 <code>InterruptedException</code> 和 <code>ExecutionException</code>。这意味着你需要在方法签名中声明这些异常或在调用处捕获它们。</li>
+<li><strong>支持超时参数</strong>：允许你指定等待结果的最大时间，这对于避免无限期等待某些操作完成特别有用。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> future.get(<span class="hljs-number">1</span>, TimeUnit.SECONDS); <span class="hljs-comment">// 等待最多1秒</span><br>&#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>    <span class="hljs-comment">// 当前线程被中断时执行</span><br>&#125; <span class="hljs-keyword">catch</span> (ExecutionException e) &#123;<br>    <span class="hljs-comment">// 当Future完成时发生异常</span><br>&#125; <span class="hljs-keyword">catch</span> (TimeoutException e) &#123;<br>    <span class="hljs-comment">// 超过指定时间未完成任务</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>使用建议</strong></p>
+<ul>
+<li><p><strong>推荐使用 <code>join()</code> 的场景</strong>：</p>
+<ul>
+<li>当你希望保持代码简洁，并且不想处理复杂的异常结构时。</li>
+<li>在大多数情况下，尤其是当你已经在更高的层次上实现了异常处理逻辑时，<code>join()</code> 提供了一种更直接的方式来获取结果。</li>
+</ul>
+</li>
+<li><p><strong>推荐使用 <code>get()</code> 的场景</strong>：</p>
+<ul>
+<li>当你需要对超时进行精确控制时。</li>
+<li>如果你需要明确区分不同类型的异常（如中断、执行错误等），以便采取不同的恢复措施。</li>
+</ul>
+</li>
+</ul>
+<p>总的来说，在没有特殊需求的情况下（例如不需要超时控制），<strong>更推荐使用 <code>join()</code></strong> ，因为它简化了异常处理流程，使代码更加清晰易读。不过，具体选择应基于你的实际需求和上下文环境。</p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="category-chain-item">Java并发编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="print-no-link">#Java并发编程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一站式了解Completable的用法基础(保姆版)</div>
+      <div>https://maple525866.github.io/2025/06/22/一站式了解Completable的用法基础-保姆版/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98Guava/" title="一站式了解本地缓存Guava">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式了解本地缓存Guava</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3CAP%E7%90%86%E8%AE%BA/" title="一站式了解CAP理论">
+                        <span class="hidden-mobile">一站式了解CAP理论</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

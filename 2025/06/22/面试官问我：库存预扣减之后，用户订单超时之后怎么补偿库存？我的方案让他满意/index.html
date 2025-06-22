@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言在后端开发和面试中，如果是做类似秒杀和商城等业务时，我们难免会遇到关于订单超时了，但是Redis里面的库存已经预扣减了，那么如何把预扣减的库存进行补偿呢？下面和大家讨论几种比较常见常用的方案。 为什么要补偿预扣减的库存？😵古人常说，要做一件事之前，先要清楚为什么要做这件事，再去想解决这件事的方案。我认为这种说法也是对的，只有先清楚为什么要补偿预扣减的库存，才能获得解决方案的灵感。 在一个秒杀">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意...">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E9%9D%A2%E8%AF%95%E5%AE%98%E9%97%AE%E6%88%91%EF%BC%9A%E5%BA%93%E5%AD%98%E9%A2%84%E6%89%A3%E5%87%8F%E4%B9%8B%E5%90%8E%EF%BC%8C%E7%94%A8%E6%88%B7%E8%AE%A2%E5%8D%95%E8%B6%85%E6%97%B6%E4%B9%8B%E5%90%8E%E6%80%8E%E4%B9%88%E8%A1%A5%E5%81%BF%E5%BA%93%E5%AD%98%EF%BC%9F%E6%88%91%E7%9A%84%E6%96%B9%E6%A1%88%E8%AE%A9%E4%BB%96%E6%BB%A1%E6%84%8F/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言在后端开发和面试中，如果是做类似秒杀和商城等业务时，我们难免会遇到关于订单超时了，但是Redis里面的库存已经预扣减了，那么如何把预扣减的库存进行补偿呢？下面和大家讨论几种比较常见常用的方案。 为什么要补偿预扣减的库存？😵古人常说，要做一件事之前，先要清楚为什么要做这件事，再去想解决这件事的方案。我认为这种说法也是对的，只有先清楚为什么要补偿预扣减的库存，才能获得解决方案的灵感。 在一个秒杀">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153644.jpg">
+<meta property="article:published_time" content="2025-06-22T07:52:59.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:54:37.391Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="后端开发问题">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153644.jpg">
+  
+  
+  
+  <title>面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意... - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153644.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意..."></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 15:52" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意...</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在后端开发和面试中，如果是做类似秒杀和商城等业务时，我们难免会遇到关于订单超时了，但是Redis里面的库存已经预扣减了，那么如何把预扣减的库存进行补偿呢？下面和大家讨论几种比较常见常用的方案。</p>
+<h1 id="为什么要补偿预扣减的库存？😵"><a href="#为什么要补偿预扣减的库存？😵" class="headerlink" title="为什么要补偿预扣减的库存？😵"></a>为什么要补偿预扣减的库存？😵</h1><p>古人常说，要做一件事之前，先要清楚为什么要做这件事，再去想解决这件事的方案。我认为这种说法也是对的，只有先清楚为什么要补偿预扣减的库存，才能获得解决方案的灵感。</p>
+<p>在一个秒杀业务中，大家一起来抢购这种商品，但是商品数额有限。一位用户率先抢到这个商品，已经成功下单（即已经有了订单号），但是尚未结款，也就代表数据库还没有真正落库扣减这个商品，只是在Redis进行预扣减了这件库存。该用户在后来的一段时间因为某事忘记了付款，即订单超时，那么我们就要把这个Redis中预扣减的库存补偿回Redis中，否则就会造成后来的用户无法继续抢购，也就是少卖现象，会给商家利益造成损失。</p>
+<h1 id="方案一：Redis的过期监听🤤"><a href="#方案一：Redis的过期监听🤤" class="headerlink" title="方案一：Redis的过期监听🤤"></a>方案一：Redis的过期监听🤤</h1><p>在redis里面中，key可以设过期时间，这就给我们提供了一个思路：我们可以给预扣减的库存键设一个过期时间，使用redis的发布订阅机制来监听键过期事件，从而自动触发回增库存的逻辑</p>
+<p> 功能目标：</p>
+<ul>
+<li>监听 Redis 中所有以 <code>product:</code> 开头的商品 key 的过期事件。</li>
+<li>一旦某个商品 key 过期（比如用户超时未支付），自动执行库存回补（<code>INCR</code>）操作。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RedissonStockExpiredListener</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <br>        <span class="hljs-comment">// 模拟预扣减库存</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">productKey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;product:1001:stock&quot;</span>;<br>        <span class="hljs-type">RBatch</span> <span class="hljs-variable">batch</span> <span class="hljs-operator">=</span> redisson.getBatch();<br>        batch.get(productKey).setAsync(<span class="hljs-number">100L</span>);           <span class="hljs-comment">// 初始化库存</span><br>        batch.get(productKey).decrementAsync();         <span class="hljs-comment">// 预扣减</span><br>        batch.get(productKey).expireAsync(<span class="hljs-number">5</span>, TimeUnit.SECONDS); <span class="hljs-comment">// 设置5秒过期</span><br>        batch.execute();<br><br>        System.out.println(<span class="hljs-string">&quot;已预扣减库存，并设置5秒后过期&quot;</span>);<br><br>        <span class="hljs-comment">// 订阅 Redis 的 key 过期事件</span><br>        <span class="hljs-type">RTopic</span> <span class="hljs-variable">topic</span> <span class="hljs-operator">=</span> redisson.getTopic(<span class="hljs-string">&quot;__keyevent@*:expired&quot;</span>);<br>        topic.addListener(String.class, <span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageListener</span>&lt;String&gt;() &#123;<br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMessage</span><span class="hljs-params">(CharSequence channel, String key)</span> &#123;<br>                System.out.println(<span class="hljs-string">&quot;监听到 key 过期：&quot;</span> + key);<br><br>                <span class="hljs-keyword">if</span> (key != <span class="hljs-literal">null</span> &amp;&amp; key.startsWith(<span class="hljs-string">&quot;product:&quot;</span>)) &#123;<br>                    System.out.println(<span class="hljs-string">&quot;处理商品 key 过期，准备补偿库存...&quot;</span>);<br><br>                    <span class="hljs-comment">// 补偿库存：INCR</span><br>                    <span class="hljs-type">RAtomicLong</span> <span class="hljs-variable">stock</span> <span class="hljs-operator">=</span> redisson.getAtomicLong(key);<br>                    <span class="hljs-type">long</span> <span class="hljs-variable">newStock</span> <span class="hljs-operator">=</span> stock.incrementAndGet(); <span class="hljs-comment">// INCR</span><br>                    System.out.println(<span class="hljs-string">&quot;库存已补偿，当前库存：&quot;</span> + newStock);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    System.out.println(<span class="hljs-string">&quot;忽略非商品 key：&quot;</span> + key);<br>                &#125;<br>            &#125;<br>        &#125;);<br><br>        System.out.println(<span class="hljs-string">&quot;正在监听 Redis key 过期事件...&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这个方案的优点是实时性强，对要求实时性高的业务比较友好，如抢票等。缺点是过于依靠Redis，风险不能分摊。且容易造成大量过期Key问题，影响性能。</p>
+<h1 id="方案二：Redis的延时队列😉"><a href="#方案二：Redis的延时队列😉" class="headerlink" title="方案二：Redis的延时队列😉"></a>方案二：Redis的延时队列😉</h1><p>我们可以基于Redis的Sorted Set数据类型来做一个延时队列，通过score来进行排序，我们服务端下单时在当前时间加上超时时间，将订单ID放入进去，通过定时任务来定量拿取超时订单进行取消订单+补偿库存。</p>
+<p><strong>添加订单到延时队列</strong></p>
+<ul>
+<li>当用户下单但未支付时，计算出订单的超时时间（例如：当前时间 + 30 分钟），然后将订单 ID 以这个时间为 score 添加到 Redis Sorted Set 中。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">RScoredSortedSet&lt;String&gt; delayedQueue = redisson.getScoredSortedSet(<span class="hljs-string">&quot;delayed:order:queue&quot;</span>);<br><span class="hljs-type">long</span> <span class="hljs-variable">timeoutTime</span> <span class="hljs-operator">=</span> System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(<span class="hljs-number">30</span>); <span class="hljs-comment">// 30分钟后超时</span><br>delayedQueue.add(timeoutTime, orderId);<br></code></pre></td></tr></table></figure>
+
+<p><strong>定时任务检查并处理超时订单</strong></p>
+<ul>
+<li><p>定期运行一个后台任务，使用 <code>ZRANGEBYSCORE</code> 获取所有已经到期的订单（即 score 小于等于当前时间戳的所有订单）。</p>
+</li>
+<li><p>对于每个找到的订单，执行取消订单和补偿库存的操作，并从 Sorted Set 中移除这些订单。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">long</span> <span class="hljs-variable">currentTime</span> <span class="hljs-operator">=</span> System.currentTimeMillis();<br>Collection&lt;String&gt; expiredOrders = delayedQueue.valueRange(<span class="hljs-number">0</span>, <span class="hljs-literal">true</span>, currentTime, <span class="hljs-literal">false</span>);<br><span class="hljs-keyword">for</span> (String orderId : expiredOrders) &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 执行取消订单逻辑</span><br>        cancelOrder(orderId);<br><br>        <span class="hljs-comment">// 补偿库存逻辑</span><br>        restoreStock(orderId);<br>        <br>        <span class="hljs-comment">// 从延迟队列中删除该订单</span><br>        delayedQueue.remove(orderId);<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-comment">// 异常处理</span><br>        logger.error(<span class="hljs-string">&quot;处理超时订单失败: &#123;&#125;&quot;</span>, orderId, e);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p> 这样的方案优点和方案一差不多，实时性好延迟小，但是就是过于依靠Redis，有数据丢失的风险。而且Redis是基于内存的，如果超时订单过多对Redis压力过大，容易挂机。</p>
+<h1 id="方案三：MQ的延时消息🤩"><a href="#方案三：MQ的延时消息🤩" class="headerlink" title="方案三：MQ的延时消息🤩"></a>方案三：MQ的延时消息🤩</h1><p> 我们通过RocketMQ来讲这个例子，用户下单之后，生产者将设置好时间的消息发送给broker，等到规定的消息之后，该消息才对消费者可见，broker发送相应消息给消费者，消费者执行订单取消+库存补偿逻辑即可（消息重试机制保证消费者一定可以消费）</p>
+<p><img src="https://img-home.csdnimg.cn/images/20230724024159.png?origin_url=https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/a657816af14f4434b9d794ad41f2512d~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAg5oOz55Sob2ZmZXLmiZPniYw=:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiNTc4NzgxNjQxOTY4OTcyIn0%253D&rk3s=e9ecf3d6&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1749190938&x-orig-sign=kibB6GjUR5t9J8I9LtwyUqjsPWw%253D&pos_id=img-ClWo8nz0-1749107416163" srcset="/img/loading.gif" lazyload alt="外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传"></p>
+<p><strong>生产者：用户下单后发送延时消息</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderService</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> RocketMQTemplate rocketMQTemplate;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">OrderService</span><span class="hljs-params">(RocketMQTemplate rocketMQTemplate)</span> &#123;<br>        <span class="hljs-built_in">this</span>.rocketMQTemplate = rocketMQTemplate;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createOrder</span><span class="hljs-params">(String orderId, String productKey)</span> &#123;<br>        <span class="hljs-comment">// 1. 创建订单（伪代码）</span><br>        System.out.println(<span class="hljs-string">&quot;创建订单：&quot;</span> + orderId);<br><br>        <span class="hljs-comment">// 2. 预扣减库存（假设用 Redisson）</span><br>        <span class="hljs-comment">// RAtomicLong stock = redisson.getAtomicLong(productKey);</span><br>        <span class="hljs-comment">// stock.decrementAndGet();</span><br><br>        <span class="hljs-comment">// 3. 发送延迟消息，level=15 对应 30分钟</span><br>        <span class="hljs-type">OrderTimeoutMessage</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderTimeoutMessage</span>(orderId, productKey);<br>        rocketMQTemplate.convertAndSend(<span class="hljs-string">&quot;ORDER_TIMEOUT_TOPIC&quot;</span>, message, <span class="hljs-literal">null</span>, <span class="hljs-number">15</span>); <span class="hljs-comment">// level=15</span><br>        System.out.println(<span class="hljs-string">&quot;已发送延迟消息，30分钟后处理订单：&quot;</span> + orderId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>消费者：监听并处理超时订单</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-meta">@RocketMQMessageListener(topic = &quot;ORDER_TIMEOUT_TOPIC&quot;, consumerGroup = &quot;order-timeout-group&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderTimeoutConsumer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">RocketMQListener</span>&lt;OrderTimeoutMessage&gt; &#123;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">onMessage</span><span class="hljs-params">(OrderTimeoutMessage message)</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">orderId</span> <span class="hljs-operator">=</span> message.orderId;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">productKey</span> <span class="hljs-operator">=</span> message.productKey;<br>        <span class="hljs-type">long</span> <span class="hljs-variable">expectedExpireTime</span> <span class="hljs-operator">=</span> message.timestamp + TimeUnit.MINUTES.toMillis(<span class="hljs-number">30</span>);<br><br>        <span class="hljs-comment">// 1. 判断是否已经过期（防止重复消费或提前消费）</span><br>        <span class="hljs-keyword">if</span> (System.currentTimeMillis() &lt; expectedExpireTime) &#123;<br>            System.out.println(<span class="hljs-string">&quot;消息尚未到期，跳过处理：&quot;</span> + orderId);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br><br>        <span class="hljs-comment">// 2. 查询订单状态（伪代码）</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">paid</span> <span class="hljs-operator">=</span> checkIfOrderPaid(orderId);<br>        <span class="hljs-keyword">if</span> (paid) &#123;<br>            System.out.println(<span class="hljs-string">&quot;订单已支付，无需处理：&quot;</span> + orderId);<br>            <span class="hljs-keyword">return</span>;<br>        &#125;<br><br>        <span class="hljs-comment">// 3. 未支付 → 取消订单 + 补偿库存</span><br>        cancelOrder(orderId);<br>        restoreStock(productKey);<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">checkIfOrderPaid</span><span class="hljs-params">(String orderId)</span> &#123;<br>        <span class="hljs-comment">// 查询数据库判断是否已支付（伪逻辑）</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; <span class="hljs-comment">// 假设未支付</span><br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cancelOrder</span><span class="hljs-params">(String orderId)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;取消订单：&quot;</span> + orderId);<br>        <span class="hljs-comment">// 实际操作：更新订单状态为已取消</span><br>    &#125;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">restoreStock</span><span class="hljs-params">(String productKey)</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;补偿库存：&quot;</span> + productKey);<br>        <span class="hljs-comment">// 实际操作：INCR productKey</span><br>        <span class="hljs-comment">// RAtomicLong stock = redisson.getAtomicLong(productKey);</span><br>        <span class="hljs-comment">// stock.incrementAndGet();</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果你使用的RocketMQ是5.x的版本就可以支持任意时刻的延时消息了，否则就是对应级别的延时消息。</p>
+<p>这种方案处理高并发性能好，而且处理消息丢失等方案成熟。缺点就是系统架构更加复杂了，需要处理MQ的其他问题，维护成本变高了。</p>
+<h1 id="方案四：分布式定时任务调度框架😈"><a href="#方案四：分布式定时任务调度框架😈" class="headerlink" title="方案四：分布式定时任务调度框架😈"></a>方案四：分布式定时任务调度框架😈</h1><p>使用分布式定时任务调度框架，比如<strong>xxl-job 或 Quartz</strong>是企业里面非常常见的方案。用户下单之后，我们在数据库里面记录订单状态为“待支付”，然后通过xxl-job定期扫描过期的订单，筛选出超时未支付的订单，进行取消订单+补偿库存。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Component</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderTimeoutJobHandler</span> &#123;<br><br>    <span class="hljs-meta">@XxlJob(&quot;orderTimeoutJob&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">orderTimeoutJob</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        XxlJobLogger.log(<span class="hljs-string">&quot;开始执行超时订单检测任务...&quot;</span>);<br><br>        <span class="hljs-comment">// 1. 获取当前时间</span><br>        <span class="hljs-type">LocalDateTime</span> <span class="hljs-variable">now</span> <span class="hljs-operator">=</span> LocalDateTime.now();<br><br>        <span class="hljs-comment">// 2. 查询所有 timeout_time &lt;= now 且 status = 0 的订单</span><br>        List&lt;Order&gt; expiredOrders = orderMapper.findExpiredOrders(now);<br><br>        <span class="hljs-keyword">for</span> (Order order : expiredOrders) &#123;<br>            <span class="hljs-comment">// 3. 加锁防止并发处理同一订单（可选 Redis 分布式锁）</span><br>            <span class="hljs-type">boolean</span> <span class="hljs-variable">locked</span> <span class="hljs-operator">=</span> redisTemplate.opsForValue().setIfAbsent(<br>                <span class="hljs-string">&quot;lock:order:&quot;</span> + order.getId(), <span class="hljs-string">&quot;locked&quot;</span>, <span class="hljs-number">5</span>, TimeUnit.MINUTES);<br><br>            <span class="hljs-keyword">if</span> (!locked) &#123;<br>                <span class="hljs-keyword">continue</span>; <span class="hljs-comment">// 已被其他节点处理</span><br>            &#125;<br><br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">// 4. 再次确认是否已支付（防止并发问题）</span><br>                <span class="hljs-type">Order</span> <span class="hljs-variable">updatedOrder</span> <span class="hljs-operator">=</span> orderMapper.selectById(order.getId());<br>                <span class="hljs-keyword">if</span> (updatedOrder.getStatus() != <span class="hljs-number">0</span>) &#123;<br>                    <span class="hljs-keyword">continue</span>;<br>                &#125;<br><br>                <span class="hljs-comment">// 5. 更新订单状态为“已取消”</span><br>                orderMapper.updateStatus(order.getId(), <span class="hljs-number">2</span>);<br><br>                <span class="hljs-comment">// 6. 补偿库存（如使用 Redisson）</span><br>                <span class="hljs-type">RAtomicLong</span> <span class="hljs-variable">stock</span> <span class="hljs-operator">=</span> redisson.getAtomicLong(order.getProductKey());<br>                stock.incrementAndGet();<br><br>                XxlJobLogger.log(<span class="hljs-string">&quot;已取消订单：&quot;</span> + order.getId() + <span class="hljs-string">&quot;，补偿库存：&quot;</span> + order.getProductKey());<br><br>            &#125; <span class="hljs-keyword">finally</span> &#123;<br>                <span class="hljs-comment">// 7. 释放锁</span><br>                redisTemplate.delete(<span class="hljs-string">&quot;lock:order:&quot;</span> + order.getId());<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>笔者更加推荐xxl-job来实现分布式定时任务，因为它自带可视化界面，兼顾性能与精准，更适合微服务架构下的分布式任务调度</p>
+<p>这种方案对实时性支持不是很好，且框架学习成本高。</p>
+<h1 id="重复补偿库存问题😗"><a href="#重复补偿库存问题😗" class="headerlink" title="重复补偿库存问题😗"></a>重复补偿库存问题😗</h1><p>由于网络延迟或者网络分区，又或者是Redis服务器问题，还有并发问题等，有可能会导致重复补偿库存的情况，那么该怎么解决呢？</p>
+<p><strong>1.使用分布式锁</strong></p>
+<ul>
+<li><p>在执行库存补偿之前，尝试获取一个针对特定商品 ID 的分布式锁。只有成功获取锁的进程才能执行补偿操作。这样可以防止多个实例同时处理同一个过期事件。</p>
+</li>
+<li><p>示例代码片段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">RLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> redisson.getLock(<span class="hljs-string">&quot;lock:product:&quot;</span> + productId);<br><span class="hljs-keyword">if</span> (lock.tryLock()) &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 执行库存补偿逻辑</span><br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        lock.unlock();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>2.状态标记</strong></p>
+<ul>
+<li><p>在补偿库存后，给对应的 key 添加一个特殊的标识（如 <code>compensated</code> 标记）。下次再遇到该 key 过期时，先检查是否存在这个标记。如果存在，则跳过补偿步骤。</p>
+</li>
+<li><p>示例代码片段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (!redissonMap.containsKey(productId + <span class="hljs-string">&quot;:compensated&quot;</span>)) &#123;<br>    <span class="hljs-comment">// 执行库存补偿逻辑</span><br>    redissonMap.put(productId + <span class="hljs-string">&quot;:compensated&quot;</span>, <span class="hljs-literal">true</span>);<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>3.延迟队列结合定时任务</strong></p>
+<p>刚才方案二就可以解决这个问题，将需要补偿的订单信息放入延迟队列中，并设置适当的延迟时间。通过后台定时任务统一处理这些订单，确保每个订单只被处理一次</p>
+<p><strong>4.数据库唯一约束</strong></p>
+<p>通过建立补偿库存表，业务和订单id作为唯一索引，每次补偿之前尝试是否可以插入该表，可以则补偿，反之则跳过。</p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>实际业务不一定要按照上面的方案执行，可以根据实际来组合使用(●’◡’●)。如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98/" class="category-chain-item">后端开发问题</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98/" class="print-no-link">#后端开发问题</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意...</div>
+      <div>https://maple525866.github.io/2025/06/22/面试官问我：库存预扣减之后，用户订单超时之后怎么补偿库存？我的方案让他满意/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E9%9D%A2%E8%AF%95%E5%9B%9E%E7%AD%94%E5%96%9C%E6%AC%A2%E7%94%A8%E6%9E%84%E9%80%A0%E5%99%A8%E6%B3%A8%E5%85%A5%EF%BC%8C%E9%9D%A2%E8%AF%95%E5%AE%98%E5%BE%88%E6%BB%A1%E6%84%8F/" title="面试回答喜欢用构造器注入，面试官很满意...">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">面试回答喜欢用构造器注入，面试官很满意...</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98Guava/" title="一站式了解本地缓存Guava">
+                        <span class="hidden-mobile">一站式了解本地缓存Guava</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

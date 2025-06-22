@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言这是设计模式专栏的第二篇文章，在这个专栏里面会讲到我们在开发中经常使用的设计模式，我会用心将它们解析，然后讲给你们听，如果感兴趣可以持续关注这个专栏❤️ 这次我们要讲的是责任链模式，这是在实际的开发中非常常用的软件设计模式，为什么呢？又得讲到那个非常经典的例子了，你是一个程序员，今天临时起意想要暂时远离一下这种枯燥生活，去旅游或者休息，于是你在OA系统提起了七天的假期申请，需要流程审批。首先你">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一站式了解责任链模式">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言这是设计模式专栏的第二篇文章，在这个专栏里面会讲到我们在开发中经常使用的设计模式，我会用心将它们解析，然后讲给你们听，如果感兴趣可以持续关注这个专栏❤️ 这次我们要讲的是责任链模式，这是在实际的开发中非常常用的软件设计模式，为什么呢？又得讲到那个非常经典的例子了，你是一个程序员，今天临时起意想要暂时远离一下这种枯燥生活，去旅游或者休息，于是你在OA系统提起了七天的假期申请，需要流程审批。首先你">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151438.jpg">
+<meta property="article:published_time" content="2025-06-22T07:07:17.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:18:06.760Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151438.jpg">
+  
+  
+  
+  <title>一站式了解责任链模式 - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151438.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一站式了解责任链模式"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 15:07" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一站式了解责任链模式</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>这是设计模式专栏的第二篇文章，在这个专栏里面会讲到我们在开发中经常使用的设计模式，我会用心将它们解析，然后讲给你们听，如果感兴趣可以持续关注这个专栏❤️</p>
+<p>这次我们要讲的是责任链模式，这是在实际的开发中非常常用的软件设计模式，为什么呢？又得讲到那个非常经典的例子了，你是一个程序员，今天临时起意想要暂时远离一下这种枯燥生活，去旅游或者休息，于是你在OA系统提起了七天的假期申请，需要流程审批。首先你的组长会看到这个审批，但是他没有权限审批七天的假期，又到你的Leader审批，但是他也同样没有这么大的权限，这个审批一直流转，终于流到了有能力审批七天假期的部门大佬….</p>
+<p>这种像一个链子一样的，允许多个对象处理请求，请求会沿着建造好的链子前进，一直达到有能力处理的节点，这种就是责任链模式。</p>
+<h1 id="责任链模式的定义😯"><a href="#责任链模式的定义😯" class="headerlink" title="责任链模式的定义😯"></a>责任链模式的定义😯</h1><p>上面说了这么多，那么责任链模式定义到底是什么呢？</p>
+<p>责任链模式（Chain of Responsibility Pattern）是一种<strong>行为型设计模式</strong>，它允许多个对象有机会处理请求，从而避免请求的发送者和接收者之间的耦合。请求沿着一条链传递，直到有一个对象处理它为止。 </p>
+<h2 id="责任链模式的核心思想"><a href="#责任链模式的核心思想" class="headerlink" title="责任链模式的核心思想"></a>责任链模式的核心思想</h2><ul>
+<li><strong>将多个处理器连接成一条链</strong>。</li>
+<li>请求从链的一端发起，沿着链传递，每个节点都有机会处理请求或将其传递给下一个节点。</li>
+<li>如果当前节点不能处理该请求，则将请求转发给下一个节点。</li>
+</ul>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
+<li><strong>请求的处理有多个步骤或条件</strong>，例如审批流程、权限控制等。</li>
+<li><strong>请求的处理者不确定是谁</strong>，希望动态指定。</li>
+<li><strong>解耦请求发送者和处理者</strong>，使系统更灵活、可扩展。</li>
+</ol>
+<h2 id="结构组成"><a href="#结构组成" class="headerlink" title="结构组成"></a>结构组成</h2><ul>
+<li><strong>Handler（抽象处理者）</strong> ：定义处理请求的接口，通常包含一个指向下一个处理者的引用。</li>
+<li><strong>ConcreteHandler（具体处理者）</strong> ：实现处理逻辑。可以决定是否处理请求或将请求传给下一个处理者。</li>
+<li><strong>Client（客户端）</strong> ：创建处理链并提交请求。</li>
+</ul>
+<h1 id="责任链模式的具体使用😎"><a href="#责任链模式的具体使用😎" class="headerlink" title="责任链模式的具体使用😎"></a>责任链模式的具体使用😎</h1><p>上面的定义太枯燥了，直接来看怎么使用责任链模式吧，这里笔者选取了自己最熟悉也是觉得最好用的实现方式来给大家看看，如果有佬觉得还有更好的实现方式欢迎在评论区留言或者私信交流🤓</p>
+<p>ps：笔者只展示最主要的部分，请大家集中注意力关注主要部分</p>
+<h2 id="责任链装载接口"><a href="#责任链装载接口" class="headerlink" title="责任链装载接口"></a>责任链装载接口</h2><p>这里是责任链的装载接口，appendNext负责添加下一个责任链节点，next()负责返回责任链中的下一个节点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ILogicChainArmory</span> &#123;<br><br>    ILogicChain <span class="hljs-title function_">appendNext</span><span class="hljs-params">(ILogicChain next)</span>;<br><br>    ILogicChain <span class="hljs-title function_">next</span><span class="hljs-params">()</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="责任链接口"><a href="#责任链接口" class="headerlink" title="责任链接口"></a>责任链接口</h2><p>这个责任链接口，就是对应的节点类型，logic方法就是每个具体节点都要实现的逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ILogicChain</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ILogicChainArmory</span>&#123;<br>    <br>    DefaultChainFactory.StrategyAwardVO <span class="hljs-title function_">logic</span><span class="hljs-params">(String userId, Long strategyId)</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="责任链抽象类"><a href="#责任链抽象类" class="headerlink" title="责任链抽象类"></a>责任链抽象类</h2><p>由于ILogicChain extends ILogicChainArmory，实现子接口的类也必须提供这些方法的具体实现。</p>
+<p>但是因为AbstractLogicChain是抽象类，所以实现任意一部分就行了（甚至可以不实现），这里我们实现责任链的装载方法，让具体责任链实现节点类只需要负责实现具体逻辑logic就行，不需要关注其他多余实现（设计模式的各司其职）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AbstractLogicChain</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ILogicChain</span>&#123;<br><br><br>    <span class="hljs-keyword">private</span> ILogicChain next;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ILogicChain <span class="hljs-title function_">appendNext</span><span class="hljs-params">(ILogicChain next)</span> &#123;<br>        <span class="hljs-built_in">this</span>.next = next;<br>        <span class="hljs-keyword">return</span> next;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ILogicChain <span class="hljs-title function_">next</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> next;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="责任链具体节点（黑名单节点示例）"><a href="#责任链具体节点（黑名单节点示例）" class="headerlink" title="责任链具体节点（黑名单节点示例）"></a>责任链具体节点（黑名单节点示例）</h2><p>这里是一个责任链的具体节点，继承了上面的抽象类，实现具体逻辑即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Component(&quot;rule_blacklist&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BackListLogicChain</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractLogicChain</span> &#123;<br><br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">private</span> IStrategyRepository repository;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> DefaultChainFactory.StrategyAwardVO <span class="hljs-title function_">logic</span><span class="hljs-params">(String userId, Long strategyId)</span> &#123;<br>        <span class="hljs-comment">//获得对应策略，黑名单的用户配置和奖品配置</span><br>        <span class="hljs-type">String</span> <span class="hljs-variable">ruleValue</span> <span class="hljs-operator">=</span> repository.queryStrategyRuleValue(strategyId, ruleModel());<br><br><br>        String[] splitRuleValue = ruleValue.split(Constants.COLON);<br>        <span class="hljs-type">Integer</span> <span class="hljs-variable">awardId</span> <span class="hljs-operator">=</span> Integer.parseInt(splitRuleValue[<span class="hljs-number">0</span>]);<br><br>        String[] userBlackIds = splitRuleValue[<span class="hljs-number">1</span>].split(Constants.SPLIT);<br><br>        <span class="hljs-comment">// 黑名单判断</span><br>        <span class="hljs-keyword">for</span> (String userBlackId : userBlackIds) &#123;<br>            <span class="hljs-keyword">if</span> (userId.equals(userBlackId)) &#123;<br>                <span class="hljs-keyword">return</span> DefaultChainFactory.StrategyAwardVO.builder()<br>                        .awardId(awardId)<br>                        .logicModel(ruleModel())<br>                        .build();<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-comment">// 过滤其他责任链</span><br>        <span class="hljs-keyword">return</span> next().logic(userId, strategyId);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="默认节点"><a href="#默认节点" class="headerlink" title="默认节点"></a>默认节点</h2><p>这是一个默认的责任链节点，代表请求最终一定可以处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@Component(&quot;default&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DefaultLogicChain</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractLogicChain</span> &#123;<br><br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">protected</span> IStrategyDispatch strategyDispatch;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> DefaultChainFactory.StrategyAwardVO <span class="hljs-title function_">logic</span><span class="hljs-params">(String userId, Long strategyId)</span> &#123;<br>        <span class="hljs-type">Integer</span> <span class="hljs-variable">awardId</span> <span class="hljs-operator">=</span> strategyDispatch.getRandomAwardId(strategyId);<br>        <br>        <span class="hljs-keyword">return</span> DefaultChainFactory.StrategyAwardVO.builder()<br>                .awardId(awardId)<br>                .logicModel(ruleModel())<br>                .build();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="责任链工厂"><a href="#责任链工厂" class="headerlink" title="责任链工厂"></a>责任链工厂</h2><p>这里是责任链工厂，负责装载责任链。通过Spring的依赖注入，我们可以很方便的得到所有实现了ILogicChain的具体实现类，通过一个map类型来承载（只有打上注解<code>@Component</code>的具体节点实现类才可以被Spring的bean容器管理）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DefaultChainFactory</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, ILogicChain&gt; logicChainGroup;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> IStrategyRepository repository;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DefaultChainFactory</span><span class="hljs-params">(Map&lt;String, ILogicChain&gt; logicChainGroup, IStrategyRepository repository)</span> &#123;<br>        <span class="hljs-built_in">this</span>.logicChainGroup = logicChainGroup;<br>        <span class="hljs-built_in">this</span>.repository = repository;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> ILogicChain <span class="hljs-title function_">openLogicChain</span><span class="hljs-params">(Long strategyId)</span> &#123;<br>        <span class="hljs-type">StrategyEntity</span> <span class="hljs-variable">strategy</span> <span class="hljs-operator">=</span> repository.queryStrategyEntityByStrategyId(strategyId);<br>        <span class="hljs-comment">//获得该策略对应的ruleModels</span><br>        String[] ruleModels = strategy.ruleModels();<br><br>        <span class="hljs-comment">// 如果未配置策略规则，则只装填一个默认责任链</span><br>        <span class="hljs-keyword">if</span> (<span class="hljs-literal">null</span> == ruleModels || <span class="hljs-number">0</span> == ruleModels.length) <span class="hljs-keyword">return</span> logicChainGroup.get(<span class="hljs-string">&quot;default&quot;</span>);<br><br>        <span class="hljs-comment">// 按照配置顺序装填用户配置的责任链</span><br>        <span class="hljs-type">ILogicChain</span> <span class="hljs-variable">logicChain</span> <span class="hljs-operator">=</span> logicChainGroup.get(ruleModels[<span class="hljs-number">0</span>]);<br>        <span class="hljs-type">ILogicChain</span> <span class="hljs-variable">current</span> <span class="hljs-operator">=</span> logicChain;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt; ruleModels.length; i++) &#123;<br>            <span class="hljs-type">ILogicChain</span> <span class="hljs-variable">nextChain</span> <span class="hljs-operator">=</span> logicChainGroup.get(ruleModels[i]);<br>            current = current.appendNext(nextChain);<br>        &#125;<br><br>        <span class="hljs-comment">// 责任链的最后装填默认责任链</span><br>        current.appendNext(logicChainGroup.get(<span class="hljs-string">&quot;default&quot;</span>));<br><br>        <span class="hljs-keyword">return</span> logicChain;<br><br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<h1 id="测试使用😈"><a href="#测试使用😈" class="headerlink" title="测试使用😈"></a>测试使用😈</h1><p>通过openLogicChain我们就可以获得责任链的头节点，请求放进去就可以在里面流转，最终一定会被处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test_LogicChain_rule_blacklist</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">ILogicChain</span> <span class="hljs-variable">logicChain</span> <span class="hljs-operator">=</span> defaultChainFactory.openLogicChain(<span class="hljs-number">100001L</span>);<br>    DefaultChainFactory.<span class="hljs-type">StrategyAwardVO</span> <span class="hljs-variable">awardId</span> <span class="hljs-operator">=</span> logicChain.logic(<span class="hljs-string">&quot;user001&quot;</span>, <span class="hljs-number">100001L</span>);<br>    log.info(<span class="hljs-string">&quot;测试结果：&#123;&#125;&quot;</span>, awardId);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>这就是责任链模式的解析，我们下次再见。</p>
+<p>如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="category-chain-item">设计模式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="print-no-link">#设计模式</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一站式了解责任链模式</div>
+      <div>https://maple525866.github.io/2025/06/22/一站式了解责任链模式/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" title="一站式了解单例模式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式了解单例模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3CDN/" title="一站式了解CDN">
+                        <span class="hidden-mobile">一站式了解CDN</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言后端面试的时候，面试官常问如何保证缓存与数据库数据的一致性，很多同学都是东答一句西答一句，很少有回答较完整的，那么今天我们就一起总结一下，如何全面地回答这个问题。 Cache Aside Pattern🥱即旁路缓存模式  当读取数据时，首先检查缓存中是否存在所需的数据。如果存在，则直接返回；如果不存在，则从数据库中读取数据，更新到缓存后再返回给客户端。 当写入或更新数据时，先更新数据库，然后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一站式解决缓存与数据库数据一致性">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3%E7%BC%93%E5%AD%98%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言后端面试的时候，面试官常问如何保证缓存与数据库数据的一致性，很多同学都是东答一句西答一句，很少有回答较完整的，那么今天我们就一起总结一下，如何全面地回答这个问题。 Cache Aside Pattern🥱即旁路缓存模式  当读取数据时，首先检查缓存中是否存在所需的数据。如果存在，则直接返回；如果不存在，则从数据库中读取数据，更新到缓存后再返回给客户端。 当写入或更新数据时，先更新数据库，然后">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151342.jpg">
+<meta property="article:published_time" content="2025-06-22T07:20:22.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:22:07.865Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="后台缓存">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151342.jpg">
+  
+  
+  
+  <title>一站式解决缓存与数据库数据一致性 - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151342.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一站式解决缓存与数据库数据一致性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 15:20" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一站式解决缓存与数据库数据一致性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>后端面试的时候，面试官常问如何保证缓存与数据库数据的一致性，很多同学都是东答一句西答一句，很少有回答较完整的，那么今天我们就一起总结一下，如何全面地回答这个问题。</p>
+<h1 id="Cache-Aside-Pattern🥱"><a href="#Cache-Aside-Pattern🥱" class="headerlink" title="Cache Aside Pattern🥱"></a>Cache Aside Pattern🥱</h1><p>即<strong>旁路缓存模式</strong></p>
+<ul>
+<li>当读取数据时，首先检查缓存中是否存在所需的数据。如果存在，则直接返回；如果不存在，则从数据库中读取数据，更新到缓存后再返回给客户端。</li>
+<li>当写入或更新数据时，先更新数据库，然后使缓存中的旧数据失效（即删除缓存中的对应数据）。这种方式避免了直接更新缓存可能带来的复杂性和潜在问题。</li>
+</ul>
+<p>简单来说，就是大家常听到的先更新数据库，后删除缓存，但是这种方案仍有较小概率出现脏缓存问题（并发前提下）</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNptkltL40AUx79KOE8Kbcm1bfIgqPW67JtPJj6EzWjLbpMSU9i1LYgPEkTFpbq74rKyXkAU0woLLl7ol3Em8Vs4zUwV0XkY5pz5_c85f2Ya8MlzEBiw5Nu1sjBXslyBrlETR0ckvI4vOknnmlytLQjZ7Egz6dyysCmMDZHjVXJ4Gt-18eWvYSYbSymWwt_vH_5fNoVxM-nt4oM_LEv2umQrWniLk9_nA0XJpHWTzhFj8U2b46U-LkyYuLvOr2iXtTMcdlkJjk2k2CRvy8j4dv_ZEMfYPvW-Uby-PzA6PRQf_CPbp0nUe_wZPc_EHU-nzWbMh_set31yRfZC3mMmvZ01479REp0QWudHF0ebJNzhwGwKfBjMGu7gjUPc3sI3u68mhgx9n4oDRuDXUQaqyK_a_RAa_TIWBGVURRYY9OjY_mcLLLdFNTXbnfe86kDme_WlMhiL9pdlGtVrjh2gUsWmL_-CINdB_rhXdwMw9LQCGA34CoasKzlNFUVVkXRJ1_KimoFvYGQlTc2pmlQsaIqo5OViodjKwEraVcrJeZ2mNFktFEW5oFAJciqB539kfy79eq0nJYwiXw"><img src="https://i-blog.csdnimg.cn/img_convert/0ef3560f82c0cc2098f9a45fce5982e6.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="延迟双删优化😵"><a href="#延迟双删优化😵" class="headerlink" title="延迟双删优化😵"></a>延迟双删优化😵</h1><p>即在旁路缓存的基础上，优化成，先删除缓存，再更新数据库，最后延迟合适的时间再删除一遍缓存，防止脏缓存出现。延迟时间需要根据业务逻辑的执行时间和读取数据库及写入缓存的时间来评估，以确保在延迟时间内，其他请求可以完成数据库读取和缓存写入操作。</p>
+<p>但延迟双删也有其缺点：</p>
+<ul>
+<li><strong>并非强一致性</strong>：即使使用延迟双删，仍然不能完全避免Redis脏数据的问题，只能缓解。要完全解决，可能需要使用同步锁或在业务逻辑层进行处理 </li>
+<li><strong>操作失败处理</strong>：删除缓存操作有可能会失败，如果第二次删除缓存失败，可以考虑重试机制或使用消息队列进行异步同步</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNptk1tPGkEUx78KmcSEJki4CuxDkyraWvWtTwUeNmWrpgXMFpK2aoJEERG8VMELpFTFSlt3gagoiPphumdmefIrdPYibdV92MzO_P7nf86ZPdPoTSTIIQaN8-zUhOGV1x820OeZD8R9nDonv6qwui6fnUNyR66e43oiYOjtfWroN3a-52EhJV3dkPYGCNtQruNc6omm7leZAR8RluB6gZQEvJvAW43O1mlAAwZUwGvEhVOcr-FcDWdFaG3ocq96OqjLpYs4Fs_-kw-qwJCRHB9LrQw-3ns8jSEVe-4je6IsljUvEDM4tQbNhnyzCYWvyjpdgo0stDbJ5U63aGqkxXhxvxFy9fLfRgwb8UEclw41e914WDma0TNav5IuhBnDS5_mqO1qJQce4rj4804x4qNx5ep-tz06PqIaj_qgltSPqEuiAqmaFkLHRlVsTLfVyHslKpj27ukx4JNKZzF9297FQhkK11DPkXJLaiXhkvaqBKsZSH0jQp7kDsnuPBYOaFfx2RypLN-2M5A9efR_oEdkvgFrK_cuWpE0G1CsPLxiCkMy-_BOf8cT3VTlmx1ylMX5Jj7J4eISpH9IrRVYXIXaOtms07Uu_JLpOkrNZTV4BguHekXVtrx4qtSiMtJFlqZBd3D8qLMldva3qSMy0bmYDCImysc4EwpxfIhVPtG0kosfRSe4EOdHDF0GWf6dH_nDs1QzxYZfRyKhOxkfiY1PIOYt-_4D_YpNBdko551k6cT9RbhwkOMHIrFwFDEeNQJiptFHxNg8drPTYbE47FaP1ePsszhM6BNieq1Oh9nhtLpdTrvF3mdzu9yzJvRZdbWabX0euuW0OVxui81lpxIuOBmN8GParKsjP_sHuSEX1w"><img src="https://i-blog.csdnimg.cn/img_convert/874f29f28702453afccf9499f8143438.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="分布式锁更新缓存😯"><a href="#分布式锁更新缓存😯" class="headerlink" title="分布式锁更新缓存😯"></a>分布式锁更新缓存😯</h1><p>谈到同步问题必定想到锁。但是有些同学会想到用synchronized，Reentrantlock等Java提供的锁机制来实现更新缓存，这就是某些同学的知识盲区了，对分布式锁理解不够到位。像 <code>synchronized</code> 和<code>ReentrantLock</code> 这样的锁机制是Java语言层面提供的同步工具，主要用于在同一JVM实例内的线程间进行同步控制，<strong>在分布式系统中</strong>，服务通常部署在多台机器上，每台机器都有自己的JVM实例。因此，需要一种能够在不同JVM之间进行协调的锁机制，<strong>分布式锁</strong>便是为此而生的。</p>
+<p>“没有什么是加一层中间层解决不了的，如果有就多加一层”，多个客户端通过网络向这个中间层发起请求。我们可以使用Redis或者ZooKeeper来实现分布式锁这一功能。以Redis为例子，用Redis的SetNx功能来做分布式锁（最好带过期时间，防止系统无响应问题），当一个写线程来更新数据库，便尝试获得该独占锁，获得锁成功之后，其他线程其他试图更新相同数据的服务实例将被阻塞，直到锁被释放。更新数据库和更新缓存是由同一个线程来进行的，这样就保证了<strong>强一致性</strong>，但是也带来了<strong>性能较差</strong>的问题。</p>
+<p>为什么是更新数据库，也一起更新缓存，而不是由其他线程来读来重建缓存？即使采用“删除缓存 + 等待其他线程读取重建缓存”的策略，仍然存在产生脏数据的可能性。</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNp1lFtPGkEUx7_KZhKTNkHDVWAfmlRQq7YvTZ-6-EDKVkkFDELSFkjWCwICSoqAF9SagtILiPWGCPhhypndffIrdPai7ov7tLPn__-dmXPObAR9CHhYRKOZoHt-lnrndPkp8rxkoMPBcXqaGhx8QY08g-QeWUGm-Jb1eBcWAn7HnJf1h54r6hFZ5YhAc084KQjrV7BRhOQqtJahsyFuLsYUmUOSRXEyB2sHUcrJ4NSxcJjBhSbONqCdx7vnuNjE-Wy_W55WHE4ZPMooIb6Th_qWGhqVQ2MMf9gQGhVFAI0MoauCMVkwzoiJNbzZ025HFYzLglcMf5PHewfko3aXUDkVzqtRaoLh6ynoxeH6UkxkyelwsijhOssqZUKmTDL4B4cPqnjrBHJHQo_ka-IyB5Vj1fXnkJxTtUwqdSj_Irp-a03czkWpKTVPv8XhxgUuXYqlc8itK27VN6U0QwuBq78ayGtGaDShW8ClKtyWpC1zHCTaD0cbGKDwWY0U5K6zg-sV2O3BaYGvtPvtVZHbEW4T993td2_5zZq2ZtoO8DsrEG_BfhpfLPK19D9u6QEvHhUhnnxiWu46GX7lkpzqqTnRkpQxUTQkRFzEDhsn_ZsqNFIQr0G5qd0UfHucJC0Hjpbwflkq9nKX_52G7JnE7JUIUwImt_H3a-Li60W-UBW5FE7_VDrx0G6eZFmvKqUkZKQjd8XrQXQoGGZ1yMcGfW5piSJSThcKzbI-1oVo8upxBz-5kMsfI555t_99IOC7twUD4ZlZRH90zy2QVXje4w6xTq-b3MJHCev3sEFHIOwPIdouExAdQZ8RbbSbhixmvd5sMtgNdsuw3qxDXxA9aLCYh8wWg81qMelNw0ab1RbToa9yVsOQcdhOPlmMZqtNb7SarDpEmhMKBN8o91_-DcT-A3pMB2c"><img src="https://i-blog.csdnimg.cn/img_convert/81eeea808c15d3aa2fb25410ae41f4e5.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="MQ逐步更新数据库🤩"><a href="#MQ逐步更新数据库🤩" class="headerlink" title="MQ逐步更新数据库🤩"></a>MQ逐步更新数据库🤩</h1><p>我们可以借助MQ来帮我们实现数据库与缓存之间<strong>最终一致性</strong>。引入一个秒杀场景来方便讲解，当大量请求打到Redis缓存时，我们先用decr + 滑动窗口实现库存在Redis的快速扣减，一旦扣减成功就将相应信息存进MQ，让MQ削峰减流，从而让订阅该消息的消费者通过监听器逐步更新数据库。如果Redis库存已经扣减到0，可以借助MQ发送直接让数据库存更新为0的情况，进一步减少数据库的压力。</p>
+<p>可以借助MQ的事务消息，分布式事务或者本地消息表等方案进一步保证消费者一定会消费到消息，解决消息丢失，消费幂等等问题。</p>
+<p>这种方案性能非常高，而且可以保证最终一致性，但这种方案不适应强一致性的金融等场景，而且也增加了实现难度和维护难度。</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNqNlGlPGkEYx7_KZhLfoeGUI9FExatKLV5VF2KobNW0guFIbAkJSjmkEbEqtRVrSbGaRgGrRUCqX4YZlm_RYWZaUDHpvtjszvP7P_NcMx4wZ7cKQAfmHZblBW5cb7Jx-OniYckHj9-budbWTq6bR9EjtJOrHH9ABz4xc4XO18wU7CZAD1--jo4K1kVnOX9mFeYcsLgNz_YY00MYvYcuor0MjH2HqeNyMVo5W8dvqZdy9K3HNIchIurlYfZAzOyK0Su4GYfhIMz7YWmzurM66xRctpVZtkUvoft4MZ2Fv3dR4hQmsigXRqsZMXnCmD7C9PNwc6vqW6VWGM4ajMzeT-wDHmahFAkWhWMwcngnygESJVknskG-GoqgnZvGEJnfQQI84SvX2-jg0PzAC0ydi5dHBBrCXjZwumzzcFxMHsHVW5QownCOKYcIOeyhoYk3eMssSvhwQakWnSbRbpYFO0zCTPzAWDkfqX6K0Ro0GOHVz7tGAw9T7yqxICytwXwe-QMw-IttbSDA02aZkK7heAgxwlf2L_HIiLc7cP8LbXs5vyHmLphmhGDPmjmqdZJj7a4XxsjjUYE3AVjIsSzD8Vq1S34mNhJs9P-qMtq0Kr0NxgdVGXu8KmMEGK8nQ5dbWjiDEc-SeFkQfYGq_wSPBrU43S_oaWuwU-_UXh_GCf4fUNnfgrFTosDTaa6TE4Sc5NHXAtpIs-ENBmC6gHAT4lmcNl6vNaHxTNaeSaJ8zleSaTGdokq6H4MEm7UhG3Z817_B0KYYupCij7nKegGlI42x67mOjgckXuvkpviq77N4GzIY6XQzKB-o7ufuJDVFwpq-nzpu6KOSaSKZYWMHs8F7SdNKlPNFKRPMEEFXV7PcgQRfhotWoHM53IIELAmOJUvtF3hqWhNwLQhLggno8KfV4nhlAiabF2uWLbYZu33pr8xhd88vAN1Ly2sn_nMvWy0uQb9owY2vI7i-gqPH7ra5gE5LPACdB6wAnVyraFMppVKlQqaVaVXtUqUEvAG6VplK2aZUyTRqlUKqaJdr1BqvBLwlu8ra5O1avKSSK9UaqVytUEsAvpBddoeBXvDknvf-AbdOw9I"><img src="https://i-blog.csdnimg.cn/img_convert/8b7d010a860cab041dcb6ba1262b7704.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="binlog-Canal😈"><a href="#binlog-Canal😈" class="headerlink" title="binlog + Canal😈"></a>binlog + Canal😈</h1><p>使用 <code>binlog + Canal</code> 实现 MySQL 和 Redis 数据一致性是一种常见的、相对可靠的方案。其核心思想是：Canal 模拟 MySQL Slave，伪装成 MySQL 的从节点，从 MySQL Master 接收 binlog 日志，然后解析 binlog，将数据变更同步到 Redis。</p>
+<p><strong>工作原理</strong></p>
+<ol>
+<li><p><strong>MySQL 开启 binlog</strong>：</p>
+<ul>
+<li>确保 MySQL 开启了 binlog 功能，并且 binlog 的格式设置为 <code>ROW</code> 模式。这是 Canal 能够正常工作的前提。</li>
+</ul>
+</li>
+<li><p><strong>Canal 模拟 Slave</strong>：</p>
+<ul>
+<li>Canal 伪装成 MySQL 的 Slave 节点，向 MySQL Master 发起连接请求。</li>
+</ul>
+</li>
+<li><p><strong>MySQL Master 推送 binlog</strong>：</p>
+<ul>
+<li>MySQL Master 接收到 Canal 的请求后，会将 binlog 日志推送给 Canal。</li>
+</ul>
+</li>
+<li><p><strong>Canal 解析 binlog</strong>：</p>
+<ul>
+<li><p>Canal 接收到 binlog 日志后，会按照配置规则解析 binlog，提取出数据变更的详细信息，例如：</p>
+<ul>
+<li>哪个数据库的哪个表发生了变更</li>
+<li>变更的类型（INSERT、UPDATE、DELETE）</li>
+<li>变更前后的数据</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Canal 同步数据到 Redis</strong>：</p>
+<ul>
+<li><p>Canal 根据解析出的数据变更信息，将数据同步到 Redis。同步的方式可以根据实际需求进行选择，例如：</p>
+<ul>
+<li><strong>更新缓存</strong>：将变更后的数据更新到 Redis 中。</li>
+<li><strong>删除缓存</strong>：删除 Redis 中对应的数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>应用程序读取 Redis</strong>：</p>
+<ul>
+<li>应用程序从 Redis 中读取数据，如果 Redis 中没有数据，则从 MySQL 中读取，并将数据写入 Redis。</li>
+</ul>
+</li>
+</ol>
+<p>这种方案也有其优缺点：</p>
+<p><strong>优点</strong></p>
+<ul>
+<li><strong>实时性高</strong>：Canal 能够实时地将 MySQL 的数据变更同步到 Redis，保证了数据的一致性。</li>
+<li><strong>可靠性高</strong>：Canal 模拟 MySQL Slave，能够可靠地接收 binlog 日志，避免了数据丢失。</li>
+<li><strong>可扩展性强</strong>：Canal 支持多种数据同步方式，可以根据实际需求进行选择。</li>
+<li><strong>解耦</strong>：将数据同步的逻辑从应用程序中分离出来，降低了应用程序的复杂度。</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li><strong>实现复杂</strong>：需要安装、配置和维护 Canal 服务。</li>
+<li><strong>存在延迟</strong>：虽然 Canal 能够实时地同步数据，但仍然存在一定的延迟。</li>
+<li><strong>需要考虑 Canal 的高可用</strong>：为了保证 Canal 服务的可用性，需要考虑 Canal 的高可用方案。</li>
+<li><strong>需要监控Canal</strong>：需要对 Canal 服务进行监控，及时发现和解决问题</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNptlFtPGkEUx7_KZhLf0HJV4aGJAt7x3jTpwsO2bJWUi0FoaoEEjQotFNYGBaGitqI0raKpVQRaPkx3BnjyK3R2ZlHauA-bmTm__zlnzpmZAHjhsfPAABa83NIiM2-yuhn8DbCwFoYnMRvT3f2YGWQtK3MzE9KSUHrucDs9CzbKDRK7MdA4PBPre9SEDmqwlhTLldmpp6h4iMchChslOIgypSBjYo2cm3NiM4rtE-fMnJN7zctuTcStmUJQ2KKEhVv28V6Y3Gr-vG7W8yhRaJau0cWaLDIT0RDbCWMGpa7-wYYINvwfVmyFV-X00wVYTzequyS4LBomohE5a-K0k5apEUKNUqp58gXlhQeoUUKNBWAyg3KXjYsqzMdwUcRqWLyJ3tb25WrR_xip2ejknHl2_tGTadPAvDnIjLPwfJPKoZBoZNfR9jn6cIanaOccRs9nebtj2dbpwGSeMEvKCRZGD1q7R4QQy6ewdAMrqTsPWENV4yRHCysZU8VGMQYrSbGaILJmqQqTO3cCCZ-geFttIdPJQDsK-vSO4lBI329w8v44TLHNegrm8pTCtadxbZ0gFI6DzDSLsyCdeyCLaRJ2RiqOHG5zF24UOqsxQ5CpdqJdXQz6UWxF3t_Wsuj0COZ-w4vtxlFFrGzC4zXx1zaMfsV50CbCj3Ha_r0CPusovkryEMu0KuJNrJW-lDeQXRfL4WbkEoVP_oTX7mK1wtlmPdLIbUHhOxFjUPadzMD4zm0tDm-upN5uXEEhjk4L7WbiIkrGJD4lBVLNKEoKrW8ZufH7-CZ8xouNRATHAwp8mx12YPB5_bwCuHivi5OmICBlYgW-Rd7FW4EBD-2c95UVWN0hrFni3M88Hldb5vX4FxaB4SXnXMYz_5Kd8_EmB4ffiXuEd9t5r9Hjd_uAQU88AEMAvAEGtV7To9MqlVqNSq_S63qVWgVYAYZulU7bo9Wp-vt0GqWmV93f1x9SgLckqqpH3avHSzq1tq9fqe7TYAneus_jtdAXijxUob-wZiEi"><img src="https://i-blog.csdnimg.cn/img_convert/cf3fd99e6604f3c14e07bc42461a959d.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>这是后端面试常问的问题，建议各位结合自己的项目进行回答，面试官问你的优化方法也可以有更多的思路。如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%90%8E%E5%8F%B0%E7%BC%93%E5%AD%98/" class="category-chain-item">后台缓存</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E5%90%8E%E5%8F%B0%E7%BC%93%E5%AD%98/" class="print-no-link">#后台缓存</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一站式解决缓存与数据库数据一致性</div>
+      <div>https://maple525866.github.io/2025/06/22/一站式解决缓存与数据库数据一致性/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E6%8E%92%E6%9F%A5%E4%BC%98%E5%8C%96%E6%85%A2SQL/" title="一站式排查优化慢SQL">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式排查优化慢SQL</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" title="一站式了解单例模式">
+                        <span class="hidden-mobile">一站式了解单例模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

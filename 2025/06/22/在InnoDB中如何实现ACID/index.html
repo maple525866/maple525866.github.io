@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
 
   <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
-  <link rel="icon" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
   
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
@@ -19,24 +19,25 @@
   <meta name="author" content="maple">
   <meta name="keywords" content="">
   
-    <meta name="description" content="这是一篇测试文章">
+    <meta name="description" content="引言大家好啊，我们后端开发中经常会遇到关于数据库设计的问题，那么我们是否真正了解数据库事务处理时的必须具备的四大特性呢？我们今天就以MySQL的默认存储引擎InnoDB来讲讲，它是如何实现ACID的😍 ACID的定义😵ACID是数据库管理系统（DBMS）为了确保事务处理可靠而必须具备的四个基本属性的缩写。这四个属性分别是：  原子性（Atomicity） ：指整个数据库操作要么全部完成，要么全">
 <meta property="og:type" content="article">
-<meta property="og:title" content="测试文章">
-<meta property="og:url" content="https://maple525866.github.io/2025/06/21/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/index.html">
+<meta property="og:title" content="在InnoDB中如何实现ACID?">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E5%9C%A8InnoDB%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0ACID/index.html">
 <meta property="og:site_name" content="maple">
-<meta property="og:description" content="这是一篇测试文章">
+<meta property="og:description" content="引言大家好啊，我们后端开发中经常会遇到关于数据库设计的问题，那么我们是否真正了解数据库事务处理时的必须具备的四大特性呢？我们今天就以MySQL的默认存储引擎InnoDB来讲讲，它是如何实现ACID的😍 ACID的定义😵ACID是数据库管理系统（DBMS）为了确保事务处理可靠而必须具备的四个基本属性的缩写。这四个属性分别是：  原子性（Atomicity） ：指整个数据库操作要么全部完成，要么全">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://maple525866.github.io/2025/06/21/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250612125536.jpg">
-<meta property="og:image" content="https://gitee.com/gao-shengkai525866/backend-learning-notes/raw/master/img/20250621171149210.png">
-<meta property="article:published_time" content="2025-06-21T08:40:14.000Z">
-<meta property="article:modified_time" content="2025-06-21T09:12:00.547Z">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153630.jpg">
+<meta property="article:published_time" content="2025-06-22T07:38:41.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:39:50.370Z">
 <meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://maple525866.github.io/2025/06/21/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250612125536.jpg">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153630.jpg">
   
   
   
-  <title>测试文章 - maple</title>
+  <title>在InnoDB中如何实现ACID? - maple</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -196,13 +197,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622153630.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="测试文章"></span>
+            <span id="subtitle" data-typed-text="在InnoDB中如何实现ACID?"></span>
           
         </div>
 
@@ -213,8 +214,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-06-21 16:40" pubdate>
-          2025年6月21日 下午
+        <time datetime="2025-06-22 15:38" pubdate>
+          2025年6月22日 下午
         </time>
       </span>
     
@@ -225,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8 字
+          1.5k 字
         
       </span>
     
@@ -236,7 +237,7 @@
         
         
         
-          1 分钟
+          13 分钟
         
       </span>
     
@@ -273,15 +274,31 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">测试文章</h1>
+            <h1 id="seo-header">在InnoDB中如何实现ACID?</h1>
             
             
               <div class="markdown-body">
                 
-                <p>这是一篇测试文章</p>
-<img src="/2025/06/21/%E6%B5%8B%E8%AF%95%E6%96%87%E7%AB%A0/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250612125536.jpg" srcset="/img/loading.gif" lazyload class="" title="照片测试">
-
-<p><img src="https://gitee.com/gao-shengkai525866/backend-learning-notes/raw/master/img/20250621171149210.png" srcset="/img/loading.gif" lazyload alt="image-20250621171149097"></p>
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>大家好啊，我们后端开发中经常会遇到关于数据库设计的问题，那么我们是否真正了解数据库事务处理时的必须具备的四大特性呢？我们今天就以MySQL的默认存储引擎InnoDB来讲讲，它是如何实现ACID的😍</p>
+<h1 id="ACID的定义😵"><a href="#ACID的定义😵" class="headerlink" title="ACID的定义😵"></a>ACID的定义😵</h1><p>ACID是数据库管理系统（DBMS）为了确保事务处理可靠而必须具备的四个基本属性的缩写。这四个属性分别是：</p>
+<ol>
+<li><strong>原子性（Atomicity）</strong> ：指整个数据库操作要么全部完成，要么全部不进行。如果在操作过程中发生了错误，那么所有已经执行的操作都会被回滚到操作前的状态，就像这些操作从未发生过一样。</li>
+<li><strong>一致性（Consistency）</strong> ：确保数据库从一个一致状态转换到另一个一致状态。这意味着事务必须将数据库从一种有效状态带到另一种有效状态，不能违反任何完整性约束条件。</li>
+<li><strong>隔离性（Isolation）</strong> ：多个事务并发执行时，每个事务之间应该是相互隔离的，即一个事务的执行不应该影响其他事务的执行。不同的隔离级别提供了不同程度的事务间可见性的控制。</li>
+<li><strong>持久性（Durability）</strong> ：一旦一个事务被提交，它对数据库所做的更改就是永久性的，即使系统出现故障也不会丢失。</li>
+</ol>
+<p>上面的官方表述是不是没有理解到位呢？我们往下仔细再看看，你肯定可以理解的👌</p>
+<h1 id="InnoDB实现原子性😯"><a href="#InnoDB实现原子性😯" class="headerlink" title="InnoDB实现原子性😯"></a>InnoDB实现原子性😯</h1><p>原子性，为什么是原子性呢？</p>
+<p>我们学过物理都知道，原子是物质的基本构成单位，尽管原子在物理世界中本身可以再进行拆分，但我们在大部分化学反应和物理反应都将其视为最基本的单位，通俗的来说，也就是不可拆分的一步。我们可以将数据库事务视作为“不可拆分”的一步，里面的操作要么全部完成，要么全部不进行！这就是为什么叫做原子性的原因。</p>
+<p>那么InnoDB是如何实现原子性的呢？通过事务日志（redo log和undo log）来实现。当一个事务开始时，所有的修改首先记录在redo log中，并且使用缓冲池（Buffer Pool）来暂存数据页的修改。如果事务失败或中途需要回滚，可以通过undo log恢复到事务开始之前的状态；而当事务成功提交后，即便系统崩溃，重启时也可以根据redo log重做未持久化的修改，从而保证了事务的原子性。</p>
+<h1 id="InnoDB实现隔离性😶‍🌫️"><a href="#InnoDB实现隔离性😶‍🌫️" class="headerlink" title="InnoDB实现隔离性😶‍🌫️"></a>InnoDB实现隔离性😶‍🌫️</h1><p>为什么是隔离性呢？数据库不是一个整体吗？有这个疑问的小伙伴，要认真看看了。MySQL是支持多个客户端同时连接数据库的，那么这样就带来了并发性问题，如果多个连接对同一份数据读，多个事务直接不是各自一份空间（隔离）那岂不是会乱套了？（比如另一个事务读到了一个事务未提交的数据，但是该事务回滚了，数据更改被取消了，另一个事务读到的就是脏数据）。所以InnoDB实现隔离性，防止出现脏读，不可重复读等问题</p>
+<p>InnoDB默认提供的是可重复读（Repeatable Read）级别的隔离性，这是通过多版本并发控制（MVCC, Multi-Version Concurrency Control）技术实现的。MVCC允许查询操作读取事务开始时的数据快照，而不是锁定行，从而减少阻塞并提高并发性能。对于更高要求的隔离级别，如序列化（Serializable），则会采用锁机制来防止幻读等问题。</p>
+<p>可重复读，是在事务开始时读取一份快照（Read View），在这个事务进程中，始终使用的是这份快照，这样就可以保证每个事务都是独立的，每个事务内读到的数据都是一致的，是可重复读的。</p>
+<h1 id="InnoDB实现持久性🤩"><a href="#InnoDB实现持久性🤩" class="headerlink" title="InnoDB实现持久性🤩"></a>InnoDB实现持久性🤩</h1><p>事务一旦提交，就会产生更改，即使系统突然宕机，已经提交的数据也不会丢失，这就是持久性。</p>
+<p>一旦事务被提交，其对数据库的改变就会被写入磁盘上的数据文件，以确保即使发生系统故障，已提交的更改也不会丢失。InnoDB利用redo log来快速记录已完成但尚未写入数据文件的事务修改，在系统恢复期间可以依据redo log重新应用这些修改，从而保障了事务的持久性</p>
+<h1 id="InnoDB实现一致性😉"><a href="#InnoDB实现一致性😉" class="headerlink" title="InnoDB实现一致性😉"></a>InnoDB实现一致性😉</h1><p>举个简单的例子，如果一个银行账户转账事务从账户A转出100元到账户B，在这个事务提交之前，账户A的钱减少了而账户B的钱尚未增加，这将导致数据库暂时处于不一致状态。一致性确保了这种情况不会出现给其他事务看到，并且一旦事务完成，两个账户的余额都会更新为最终正确且合法的状态。在事务开始之前和结束之后，数据库的完整性约束没有被违反，确保数据处于一致的有效状态。这就是一致性。</p>
+<p>InnoDB通过支持外键、检查约束等机制来帮助维护数据的一致性。此外，原子性和隔离性的正确实现也是保持数据库一致性的关键因素。一致性也都是依靠其他三个特性才可以实现的。</p>
+<h1 id="面试🥲"><a href="#面试🥲" class="headerlink" title="面试🥲"></a>面试🥲</h1><p>这是今年暑期某大厂后端面试题之一，要求面试者要理解数据库的四大特性，并通过简短简洁的例子加以说明。相信这篇文章能带给你收获，如果有所收获请点赞加收藏，这是对笔者更新的最大鼓励！！！</p>
 
                 
               </div>
@@ -290,6 +307,36 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="print-no-link">#数据库</a>
+      
+    </div>
   
 </div>
 
@@ -299,8 +346,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>测试文章</div>
-      <div>https://maple525866.github.io/2025/06/21/测试文章/</div>
+      <div>在InnoDB中如何实现ACID?</div>
+      <div>https://maple525866.github.io/2025/06/22/在InnoDB中如何实现ACID/</div>
     </div>
     <div class="license-meta">
       
@@ -312,7 +359,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年6月21日</div>
+          <div>2025年6月22日</div>
         </div>
       
       
@@ -344,12 +391,18 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3BASE%E7%90%86%E8%AE%BA/" title="一站式了解BASE理论">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式了解BASE理论</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/06/21/hello-world/" title="Hello World">
-                        <span class="hidden-mobile">Hello World</span>
+                      <a href="/2025/06/22/%E4%B8%80%E6%AC%A1%E5%85%B3%E4%BA%8ENacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95%E4%B8%8E%E8%A7%A3%E5%86%B3/" title="一次关于Nacos配置中心问题记录与解决">
+                        <span class="hidden-mobile">一次关于Nacos配置中心问题记录与解决</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

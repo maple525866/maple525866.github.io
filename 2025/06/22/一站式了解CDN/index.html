@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言我们日常使用手机电脑都要访问静态资源，如图片、CSS文件和JavaScript文件等，如果每一个静态资源的请求都需要到达服务器，那势必会加重服务器的压力，那有什么方法解决呢？有的，兄弟，那就是今天要讲的CDN。 CDN是什么？😯CDN，全称Content Delivery Network，即内容分发网络。它是一种通过互联网协议（Internet Protocol）将网站内容分发至全球多个地理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一站式了解CDN">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3CDN/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言我们日常使用手机电脑都要访问静态资源，如图片、CSS文件和JavaScript文件等，如果每一个静态资源的请求都需要到达服务器，那势必会加重服务器的压力，那有什么方法解决呢？有的，兄弟，那就是今天要讲的CDN。 CDN是什么？😯CDN，全称Content Delivery Network，即内容分发网络。它是一种通过互联网协议（Internet Protocol）将网站内容分发至全球多个地理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+<meta property="article:published_time" content="2025-06-22T06:35:41.000Z">
+<meta property="article:modified_time" content="2025-06-22T08:06:03.462Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+  
+  
+  <title>一站式了解CDN - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一站式了解CDN"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 14:35" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一站式了解CDN</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>我们日常使用手机电脑都要访问静态资源，如图片、CSS文件和JavaScript文件等，如果每一个静态资源的请求都需要到达服务器，那势必会加重服务器的压力，那有什么方法解决呢？有的，兄弟，那就是今天要讲的CDN。</p>
+<h1 id="CDN是什么？😯"><a href="#CDN是什么？😯" class="headerlink" title="CDN是什么？😯"></a>CDN是什么？😯</h1><p>CDN，全称Content Delivery Network，即内容分发网络。它是一种通过互联网协议（Internet Protocol）将网站内容分发至全球多个地理位置不同的服务器上的方法。其主要目的是提高用户访问网站的速度和性能，同时提高内容的可用性和可靠性。</p>
+<ol>
+<li><strong>节点（PoP - Point of Presence）</strong> ：指的是CDN提供商在全球各地设立的数据中心或服务器位置。每个节点都存储有源站的部分或全部内容副本。</li>
+<li><strong>缓存（Caching）</strong> ：为了加速内容传递速度，CDN会将用户的请求指向最近的节点，并从该节点提供内容，而不是每次都从源站获取。这需要在各个节点上对静态资源进行缓存。</li>
+<li><strong>负载均衡（Load Balancing）</strong> ：通过智能算法将流量分配到不同的节点上，确保没有单个服务器过载，同时也保证了服务的高可用性。</li>
+<li><strong>回源（Origin Pull）</strong> ：当CDN节点没有找到请求的内容时，会向源站发起请求，将内容拉取到本地并提供给用户，同时缓存一份以备后续使用。</li>
+<li><strong>边缘计算（Edge Computing）</strong> ：随着技术的发展，CDN不仅限于内容分发，还涉及到在靠近用户的网络边缘执行计算任务，以减少延迟、提高效率。</li>
+<li><strong>安全性</strong>：CDN也能提供额外的安全层，比如DDoS攻击防护、SSL加密等，保护源站免受恶意攻击。</li>
+</ol>
+<p>通过使用CDN，可以显著改善用户体验，特别是对于那些拥有全球用户基础的网站和服务来说，能够极大地减少加载时间，提升整体性能</p>
+<h1 id="使用CDN的好处是什么🥱"><a href="#使用CDN的好处是什么🥱" class="headerlink" title="使用CDN的好处是什么🥱"></a>使用CDN的好处是什么🥱</h1><p>使用CDN主要是为了通过将静态资源如图片、CSS文件和JavaScript文件等分布存储在全球各地的服务器上，CDN使得这些资源更接近最终用户，从而减少服务器的压力。</p>
+<p>还有以下的好处：</p>
+<ol>
+<li><strong>减少延迟</strong>：由于静态资源从地理位置上更接近用户的服务器获取，数据传输的距离缩短，因此可以显著减少请求响应时间，提高页面加载速度。</li>
+<li><strong>降低源服务器负载</strong>：当用户请求静态资源时，可以直接从最近的CDN节点获取，而不是每次都访问源服务器。这减少了直接对源服务器的请求数量，从而减轻了服务器的压力，并降低了带宽成本。</li>
+<li><strong>提高可用性和冗余性</strong>：CDN通常由分布在不同地理位置的多个服务器组成。如果某个节点发生故障，其他节点仍然可以提供服务，确保了高可用性和稳定性。</li>
+<li><strong>增强安全性</strong>：许多CDN服务还提供额外的安全功能，比如DDoS攻击防护、SSL&#x2F;TLS加密等，有助于保护网站免受恶意攻击，同时保护敏感数据的安全。</li>
+<li><strong>改善用户体验</strong>：更快的内容加载速度意味着更好的用户体验，这对于保持访客的满意度和参与度至关重要。</li>
+</ol>
+<h1 id="CDN-Nginx-😵"><a href="#CDN-Nginx-😵" class="headerlink" title="CDN &amp; Nginx 😵"></a>CDN &amp; Nginx 😵</h1><p>那么我们说了CDN有直接给用户派发静态资源的作用，那么Nginx也有直接返回静态资源给用户的作用呀，那么两者之间到底有什么区别呢？</p>
+<p>Nginx侧重为服务器提供静态资源的缓存，当请求来则可以直接返回，而CDN则侧重全球范围提供静态资源，减少Nginx和源站的压力</p>
+<h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><ul>
+<li><strong>静态资源服务</strong>：Nginx可以高效地直接提供静态资源（如图片、CSS、JS文件等），它可以从本地文件系统中读取这些资源，并迅速响应客户端请求。这使得Nginx非常适合用作前端Web服务器。</li>
+<li><strong>缓存功能</strong>：虽然Nginx本身主要不是作为缓存解决方案设计的，但它确实支持配置缓存机制来存储后端服务器的响应结果（包括动态内容）。这意味着它可以减少对后端服务器的请求次数，提高响应速度并减轻后端服务器的负担。</li>
+<li><strong>灵活性和控制</strong>：Nginx提供了强大的配置选项，允许你精细地控制如何处理请求、管理会话、设置响应头等，适用于需要高度定制化需求的场景。</li>
+</ul>
+<h2 id="CDN"><a href="#CDN" class="headerlink" title="CDN"></a>CDN</h2><ul>
+<li><strong>全球分发</strong>：CDN的主要作用是将静态资源分布到全球各地的多个节点上，这样无论用户位于世界何处，都可以从地理位置最近的节点快速获取所需的内容。这种方式不仅能减少延迟，还能显著提升用户体验。</li>
+<li><strong>减压源站</strong>：通过在边缘节点缓存源站的内容，CDN减少了直接访问源站的需求，从而降低了源站服务器的压力以及带宽消耗。当一个用户的请求到达CDN节点时，如果该资源已被缓存，则直接由CDN节点返回给用户；如果没有被缓存，则CDN会回源站拉取资源并缓存以供后续使用。</li>
+<li><strong>增强的可靠性和安全性</strong>：除了加速内容传输外，CDN还提供了改进的可靠性和额外的安全层，比如防止DDoS攻击的能力。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><strong>Nginx</strong> 更侧重于作为高效的Web服务器或反向代理服务器，可以直接处理静态资源请求，也可以配置缓存策略减轻后端服务器的压力。</li>
+<li><strong>CDN</strong> 则专注于在全球范围内优化静态资源的分发，通过利用其广泛的节点网络减少延迟，同时也能有效分散源站的负载压力。</li>
+</ul>
+<p>两者可以结合使用，例如，Nginx可以作为源站服务器处理动态请求和部分静态资源，而CDN则用来加速静态资源的全球分发和服务，以此达到最佳的性能和可靠性</p>
+<h1 id="静态资源是如何缓存到CDN节点的？😪"><a href="#静态资源是如何缓存到CDN节点的？😪" class="headerlink" title="静态资源是如何缓存到CDN节点的？😪"></a>静态资源是如何缓存到CDN节点的？😪</h1><p>一般需要相关人员主动将静态资源先预热到CDN节点，这样就不会导致用户请求到服务器中取，可以减少服务器压力。</p>
+<p>如果访问CDN节点，发现所需的静态资源不在，则需要访问对应的服务器获取资源，顺便再给CDN节点缓存上对应的静态资源，这就是回源</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNp1kstKw0AUhl8lnHUsuTbJLARt1JWuXJm4CGZ6AZOUmIBauykutFAvtIhFUVwIoogIar37Mk6Sx3CS1EsXzmrO5fv_w8xpwJJnY0BQ8a16lZnXTZehZ8KIexfR1iC5GUS3reR-M3reW2TGxsaZSaOkzyXtVtx6ik7Po-33-LVLrg8Xc24y7dkg-2-fj9d5YYMpGfHRXbRznnz0yNFJrhW_9HODES46vhxF9V8zilIu2RmQ3YPhPDmqZ2NNGanqVT867pD2GelfkG6HPPfI08Nf2yEylSHTv-K530jPdNYzY_w_NbD00Wo2oMAPMQsO9h0rDaGRVk0IqtjBJiB6tXHZCpcDE0y3SbG65S54nvNN-l5YqQIqW8srNArrthVgvWbRH3F-sj52beyXvNANAPFipgGoAauAZKkg8KKoaLzKFQVN5WUW1gBJcoGTNVHiZFURVEHmmyysZ65cQVU0TeYkTuKLCq_IVA7btcDzZ_NdyFai-QWyQ-rg"><img src="https://mermaid.ink/img/pako:eNp1kstKw0AUhl8lnHUsuTbJLARt1JWuXJm4CGZ6AZOUmIBauykutFAvtIhFUVwIoogIar37Mk6Sx3CS1EsXzmrO5fv_w8xpwJJnY0BQ8a16lZnXTZehZ8KIexfR1iC5GUS3reR-M3reW2TGxsaZSaOkzyXtVtx6ik7Po-33-LVLrg8Xc24y7dkg-2-fj9d5YYMpGfHRXbRznnz0yNFJrhW_9HODES46vhxF9V8zilIu2RmQ3YPhPDmqZ2NNGanqVT867pD2GelfkG6HPPfI08Nf2yEylSHTv-K530jPdNYzY_w_NbD00Wo2oMAPMQsO9h0rDaGRVk0IqtjBJiB6tXHZCpcDE0y3SbG65S54nvNN-l5YqQIqW8srNArrthVgvWbRH3F-sj52beyXvNANAPFipgGoAauAZKkg8KKoaLzKFQVN5WUW1gBJcoGTNVHiZFURVEHmmyysZ65cQVU0TeYkTuKLCq_IVA7btcDzZ_NdyFai-QWyQ-rg?type=png" srcset="/img/loading.gif" lazyload></a></p>
+<p>CDN缓存不是永久有效的，可以采用以下方式来进行更新或者失效缓存：</p>
+<ul>
+<li><strong>自然过期</strong>：根据 <code>Cache-Control</code> 或 <code>Expires</code> 时间自动失效</li>
+<li><strong>主动刷新</strong>：手动调用 CDN 接口清除特定 URL 或目录的缓存</li>
+<li><strong>版本控制更新</strong>：修改文件名或添加版本号（如 <code>style-v2.css</code>），避免旧缓存影响</li>
+</ul>
+<h1 id="CDN多级缓存架构🤓"><a href="#CDN多级缓存架构🤓" class="headerlink" title="CDN多级缓存架构🤓"></a>CDN多级缓存架构🤓</h1><p>一些大型 CDN 还有 <strong>多级缓存架构</strong>：</p>
+<ul>
+<li><strong>边缘节点（Edge Node）</strong> ：最靠近用户的节点，缓存热门资源</li>
+<li><strong>中间节点（Mid-Tier Node）</strong> ：区域中心节点，用于集中缓存非热门但常用资源</li>
+<li><strong>源站（Origin Server）</strong> ：最终数据来源</li>
+</ul>
+<p>这样设计可以减少回源次数，提高整体效率</p>
+<h1 id="如何寻找最合适的CDN节点😣"><a href="#如何寻找最合适的CDN节点😣" class="headerlink" title="如何寻找最合适的CDN节点😣"></a>如何寻找最合适的CDN节点😣</h1><p><strong>GSLB（全局负载均衡）</strong> 起了重要作用，用于智能地将用户请求导向到最优的 CDN 节点。</p>
+<p><strong>GSLB 如何工作？</strong></p>
+<ol>
+<li><p><strong>DNS 查询解析</strong></p>
+<ul>
+<li>当用户尝试访问一个使用了 CDN 的网站时，首先会发起 DNS 查询来解析域名对应的 IP 地址。</li>
+<li>这个查询会被导向到支持 GSLB 的 DNS 服务器。</li>
+</ul>
+</li>
+<li><p><strong>基于策略的路由</strong></p>
+<ul>
+<li><strong>地理位置</strong>：GSLB 系统通常会根据发出请求的用户的地理位置来选择最近的 CDN 节点。这涉及到使用数据库或服务来确定用户的大概位置。</li>
+<li><strong>网络性能</strong>：一些高级的 GSLB 实现还会考虑实时网络条件，如延迟、丢包率等，以选择提供最佳性能的节点。</li>
+<li><strong>负载情况</strong>：GSLB 可以监控各个 CDN 节点的当前负载，并将流量分配给负载较低的节点，确保资源的有效利用和响应时间的优化。</li>
+<li><strong>健康检查</strong>：持续监测各节点的可用性，自动避开故障或表现不佳的节点。</li>
+</ul>
+</li>
+<li><p><strong>动态调整</strong></p>
+<ul>
+<li>基于上述因素，GSLB 系统能够动态调整其路由决策，即使在网络状况变化或者某些节点出现故障的情况下也能保证用户被引导至最佳的服务节点。</li>
+</ul>
+</li>
+</ol>
+<p>然后GSIB将最合适的CDN节点IP地址发回给浏览器，让他去访问。</p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>这就是相关CDN的解析</p>
+<p>如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%9E%B6%E6%9E%84/" class="category-chain-item">架构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E6%9E%B6%E6%9E%84/" class="print-no-link">#架构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一站式了解CDN</div>
+      <div>https://maple525866.github.io/2025/06/22/一站式了解CDN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F/" title="一站式了解责任链模式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式了解责任链模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

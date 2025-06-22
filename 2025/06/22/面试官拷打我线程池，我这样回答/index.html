@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言如果大家在简历中写熟悉Java并发编程或者项目有牵扯到线程池相关内容，那么被拷打线程池是大概率的事。下面的内容是有关今年五月份某大厂面试中有关线程池的拷打，我从中提取一些比较通用的内容进行解答，让我们一起看看吧！ 线程池的好处😯经典起手，这就非常八股了，这里我想让大家都明白一个道理，生活和学习中，都要先明白做这件事的好处（坏处）是什么，再想如何做可能灵感就会多得多，好的下面让我们回归正题❤️">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试官拷打我线程池，我这样回答....">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E9%9D%A2%E8%AF%95%E5%AE%98%E6%8B%B7%E6%89%93%E6%88%91%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%8C%E6%88%91%E8%BF%99%E6%A0%B7%E5%9B%9E%E7%AD%94/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言如果大家在简历中写熟悉Java并发编程或者项目有牵扯到线程池相关内容，那么被拷打线程池是大概率的事。下面的内容是有关今年五月份某大厂面试中有关线程池的拷打，我从中提取一些比较通用的内容进行解答，让我们一起看看吧！ 线程池的好处😯经典起手，这就非常八股了，这里我想让大家都明白一个道理，生活和学习中，都要先明白做这件事的好处（坏处）是什么，再想如何做可能灵感就会多得多，好的下面让我们回归正题❤️">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_202506221537091.jpg">
+<meta property="article:published_time" content="2025-06-22T08:00:46.000Z">
+<meta property="article:modified_time" content="2025-06-22T08:01:55.744Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="Java并发编程">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_202506221537091.jpg">
+  
+  
+  
+  <title>面试官拷打我线程池，我这样回答.... - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_202506221537091.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="面试官拷打我线程池，我这样回答...."></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 16:00" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">面试官拷打我线程池，我这样回答....</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>如果大家在简历中写熟悉Java并发编程或者项目有牵扯到线程池相关内容，那么被拷打线程池是大概率的事。下面的内容是有关今年五月份某大厂面试中有关线程池的拷打，我从中提取一些比较通用的内容进行解答，让我们一起看看吧！</p>
+<h1 id="线程池的好处😯"><a href="#线程池的好处😯" class="headerlink" title="线程池的好处😯"></a>线程池的好处😯</h1><p>经典起手，这就非常八股了，这里我想让大家都明白一个道理，生活和学习中，都要先明白做这件事的好处（坏处）是什么，再想如何做可能灵感就会多得多，好的下面让我们回归正题❤️。</p>
+<p>在Java开发中，使用线程池（如通过<code>ThreadPoolExecutor</code>类实现）有多个好处：</p>
+<ol>
+<li><strong>重用线程</strong>：通过线程池可以重用已创建的线程。如果不使用线程池，每次需要执行一个任务时都必须创建一个新的线程，在任务完成后销毁该线程。这种做法会导致大量的资源消耗和性能损耗。而线程池允许线程被重复利用，减少了线程创建和销毁的开销。</li>
+<li><strong>控制并发线程数量</strong>：线程池可以帮助你限制系统中并发执行的线程数量。通过设定最大线程数，你可以避免因为过多的线程同时运行而导致系统过载的问题。</li>
+<li><strong>管理队列</strong>：当所有线程都在忙碌时，新的任务会被放入等待队列中，直到有可用的线程来处理它们。这有助于平滑负载峰值。</li>
+<li><strong>提高响应速度</strong>：由于线程已经被创建并就绪，因此当有新任务到达时可以立即开始执行，不需要经历线程创建的延迟，从而提高了应用对请求的响应速度。</li>
+<li><strong>方便的管理功能</strong>：<code>ThreadPoolExecutor</code>提供了多种管理和监控线程池的方法，比如获取当前活跃线程数、关闭线程池等。</li>
+<li><strong>调度能力</strong>：结合<code>ScheduledThreadPoolExecutor</code>，还可以实现定时或周期性的任务执行。</li>
+</ol>
+<p><code>ThreadPoolExecutor</code>是Java提供的一个灵活的线程池实现，它允许开发者根据具体需求配置核心线程数、最大线程数、空闲线程存活时间、工作队列类型等参数。这些特性使得它成为处理大量异步任务执行的理想选择。</p>
+<h1 id="怎么创建一个线程池🤗"><a href="#怎么创建一个线程池🤗" class="headerlink" title="怎么创建一个线程池🤗"></a>怎么创建一个线程池🤗</h1><p>在Java中创建一个线程池可以通过<code>java.util.concurrent.Executors</code>工厂类或者直接实例化<code>ThreadPoolExecutor</code>来实现。下面是两种不同的方法：</p>
+<h2 id="使用Executors工厂类"><a href="#使用Executors工厂类" class="headerlink" title="使用Executors工厂类"></a>使用Executors工厂类</h2><p><code>Executors</code>提供了一系列静态工厂方法来创建不同类型的线程池，这些方法包括但不限于：</p>
+<ul>
+<li><p><strong>固定大小的线程池</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executorService</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">10</span>);<br></code></pre></td></tr></table></figure>
+
+<p>这个方法会创建一个拥有10个线程的线程池，如果所有线程都在忙，额外的任务将会在队列中等待。</p>
+</li>
+<li><p><strong>缓存型线程池</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executorService</span> <span class="hljs-operator">=</span> Executors.newCachedThreadPool();<br></code></pre></td></tr></table></figure>
+
+<p>创建一个可根据需要创建新线程的线程池，但是在以前构造的线程可用时将重用它们。对于执行很多短期异步任务的应用程序来说，这类线程池是理想选择。</p>
+</li>
+<li><p><strong>单线程化的线程池</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executorService</span> <span class="hljs-operator">=</span> Executors.newSingleThreadExecutor();<br></code></pre></td></tr></table></figure>
+
+<p>创建一个只有一个工作线程的线程池，以无顺序的方式一个接一个地执行任务。</p>
+</li>
+<li><p><strong>调度线程池</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ScheduledExecutorService</span> <span class="hljs-variable">scheduledExecutorService</span> <span class="hljs-operator">=</span> Executors.newScheduledThreadPool(<span class="hljs-number">5</span>);<br></code></pre></td></tr></table></figure>
+
+<p>创建一个支持定时和周期性任务执行的线程池，具有指定的核心线程数。</p>
+</li>
+</ul>
+<h2 id="直接使用ThreadPoolExecutor"><a href="#直接使用ThreadPoolExecutor" class="headerlink" title="直接使用ThreadPoolExecutor"></a>直接使用ThreadPoolExecutor</h2><p>如果你想更细致地控制线程池的行为，可以直接使用<code>ThreadPoolExecutor</code>的构造函数，它提供了最大的灵活性：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ThreadPoolExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>    <span class="hljs-number">10</span>, <span class="hljs-comment">// 核心线程数</span><br>    <span class="hljs-number">20</span>, <span class="hljs-comment">// 最大线程数</span><br>    <span class="hljs-number">1</span>, TimeUnit.MINUTES, <span class="hljs-comment">// 线程空闲时间</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedBlockingQueue</span>&lt;Runnable&gt;(<span class="hljs-number">100</span>), <span class="hljs-comment">// 工作队列</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>.CallerRunsPolicy()); <span class="hljs-comment">// 拒绝策略</span><br></code></pre></td></tr></table></figure>
+
+<p>这里，</p>
+<ul>
+<li>核心线程数是指线程池中的常驻线程数。</li>
+<li>最大线程数是指线程池中允许存在的最大线程数。</li>
+<li>线程空闲时间是指超过核心线程数的那些线程，在空闲了指定的时间后会被终止。</li>
+<li>工作队列用于保存等待执行的任务。</li>
+<li>拒绝策略定义了当任务无法被提交到线程池时的行为。</li>
+</ul>
+<p>创建好线程池之后，你可以通过调用<code>execute()</code>或<code>submit()</code>方法来向线程池提交任务。记得在线程池不再使用时调用<code>shutdown()</code>方法来关闭线程池，确保程序可以正常退出。</p>
+<h1 id="线程池拒绝策略🤓"><a href="#线程池拒绝策略🤓" class="headerlink" title="线程池拒绝策略🤓"></a>线程池拒绝策略🤓</h1><p>在Java中，当线程池无法接受新任务时（例如，当所有线程都在忙碌且工作队列已满），需要一种策略来处理这种情况。这种策略被称为线程池的拒绝策略，它由<code>RejectedExecutionHandler</code>接口定义，并且Java提供了几种内置的实现：</p>
+<ol>
+<li><p><strong>AbortPolicy（默认策略）</strong> ：</p>
+<ul>
+<li>抛出一个<code>RejectedExecutionException</code>异常。这可以让你捕获异常并进行相应的处理。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ThreadPoolExecutor.AbortPolicy()<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>CallerRunsPolicy</strong>：</p>
+<ul>
+<li>不在线程池中的线程执行任务，而是直接在调用者线程中运行被拒绝的任务。这种方式提供了一种简单的反馈控制机制，减缓了新任务的提交速度。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ThreadPoolExecutor.CallerRunsPolicy()<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>DiscardPolicy</strong>：</p>
+<ul>
+<li>直接丢弃被拒绝的任务，不做任何处理也不会抛出异常。这种策略适用于当你不需要关心任务丢失的情况。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ThreadPoolExecutor.DiscardPolicy()<br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>DiscardOldestPolicy</strong>：</p>
+<ul>
+<li>如果线程池没有关闭，则将工作队列中的第一个任务（即最旧的那个未处理的任务）丢弃，然后尝试重新提交被拒绝的任务。注意，这个策略不会保证任务的顺序执行，因为它可能导致较早提交的任务被后来的任务取代。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ThreadPoolExecutor.DiscardOldestPolicy()<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>你可以通过以下方式为<code>ThreadPoolExecutor</code>设置自定义的拒绝策略：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ThreadPoolExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>    corePoolSize, <br>    maximumPoolSize, <br>    keepAliveTime, <br>    TimeUnit.MILLISECONDS, <br>    workQueue, <br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>.DiscardPolicy());<br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>new ThreadPoolExecutor.DiscardPolicy()</code>可以替换为你选择的任何一种拒绝策略。这样做可以帮助你更好地管理线程池的行为，尤其是在高负载的情况下。</p>
+<h1 id="预热线程池🤠"><a href="#预热线程池🤠" class="headerlink" title="预热线程池🤠"></a>预热线程池🤠</h1><p>熟悉线程池任务执行流程的都清楚，线程池刚创建时，里面并没有核心线程数的，是一个任务来，才创建一个核心线程，直到到核心线程数。</p>
+<p>在Java中，<code>ThreadPoolExecutor</code>允许你通过预先启动核心线程数来“预热”线程池。这意味着即使没有任务提交到线程池，核心线程也会被创建并保持活动状态，准备立即处理任务。这样做可以减少首次执行任务时的延迟，因为不需要等待线程的创建过程。</p>
+<p>要实现这一点，你可以使用<code>prestartCoreThread()</code>或<code>prestartAllCoreThreads()</code>方法：</p>
+<ul>
+<li><strong><code>prestartCoreThread()</code></strong> ：尝试启动一个尚未启动的核心线程。如果当前已经有等于核心线程数量的线程处于活动状态，则此方法将不起作用。它返回一个布尔值，指示是否成功启动了一个新的线程。</li>
+<li><strong><code>prestartAllCoreThreads()</code></strong> ：启动所有核心线程，即根据设定的核心线程数一次性启动对应数量的线程。此方法会返回实际启动的线程数。</li>
+</ul>
+<p>下面是一个简单的例子，演示如何使用这些方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ThreadPoolPreheatExample</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">corePoolSize</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">maximumPoolSize</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;<br>        <span class="hljs-type">long</span> <span class="hljs-variable">keepAliveTime</span> <span class="hljs-operator">=</span> <span class="hljs-number">5000</span>;<br><br>        <span class="hljs-type">ThreadPoolExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>                corePoolSize,<br>                maximumPoolSize,<br>                keepAliveTime,<br>                TimeUnit.MILLISECONDS,<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedBlockingQueue</span>&lt;Runnable&gt;());<br><br>        <span class="hljs-comment">// 预先启动所有核心线程</span><br>        <span class="hljs-type">int</span> <span class="hljs-variable">prestartedThreads</span> <span class="hljs-operator">=</span> executor.prestartAllCoreThreads();<br>        System.out.println(<span class="hljs-string">&quot;预先启动的核心线程数: &quot;</span> + prestartedThreads);<br><br>        <span class="hljs-comment">// 提交一些任务给线程池</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>            executor.submit(() -&gt; &#123;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; 正在执行任务&quot;</span>);<br>                <span class="hljs-keyword">try</span> &#123;<br>                    Thread.sleep(<span class="hljs-number">1000</span>); <span class="hljs-comment">// 模拟任务执行时间</span><br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                    Thread.currentThread().interrupt();<br>                &#125;<br>            &#125;);<br>        &#125;<br><br>        <span class="hljs-comment">// 关闭线程池（在实际应用中，请确保所有任务已完成）</span><br>        executor.shutdown();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在这个例子中，我们首先创建了一个具有5个核心线程和最多10个线程的线程池，并调用<code>prestartAllCoreThreads()</code>方法来预热线程池，确保所有核心线程都已准备好处理任务。这样，当任务开始提交到线程池时，它们可以立即由已经活跃的核心线程处理，无需等待线程的初始化过程。</p>
+<h1 id="给线程池中的线程指定名字🤩"><a href="#给线程池中的线程指定名字🤩" class="headerlink" title="给线程池中的线程指定名字🤩"></a>给线程池中的线程指定名字🤩</h1><p>在 Java 中，默认情况下，线程池中创建的线程名称是由 JVM 自动生成的（如 <code>pool-1-thread-1</code>），但为了方便调试和日志追踪，我们通常希望自定义这些线程的名字。</p>
+<h2 id="给线程池中的线程指定名字的方法："><a href="#给线程池中的线程指定名字的方法：" class="headerlink" title="给线程池中的线程指定名字的方法："></a>给线程池中的线程指定名字的方法：</h2><p>你需要通过实现 <code>ThreadFactory</code> 接口，并传入到线程池中。Java 提供了 <code>java.util.concurrent.ThreadFactory</code> 接口，你可以自定义线程工厂来设置线程名称。</p>
+<hr>
+<p><strong>示例：使用自定义 ThreadFactory 设置线程名</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NamedThreadPoolExample</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">corePoolSize</span> <span class="hljs-operator">=</span> <span class="hljs-number">3</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">maxPoolSize</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;<br>        <span class="hljs-type">long</span> <span class="hljs-variable">keepAliveTime</span> <span class="hljs-operator">=</span> <span class="hljs-number">60</span>;<br>        <br>        <span class="hljs-comment">// 自定义线程工厂</span><br>        <span class="hljs-type">ThreadFactory</span> <span class="hljs-variable">namedThreadFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadFactory</span>() &#123;<br>            <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">threadId</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br><br>            <span class="hljs-meta">@Override</span><br>            <span class="hljs-keyword">public</span> Thread <span class="hljs-title function_">newThread</span><span class="hljs-params">(Runnable r)</span> &#123;<br>                <span class="hljs-type">Thread</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(r, <span class="hljs-string">&quot;MyCustomThread-&quot;</span> + threadId++);<br>                <span class="hljs-comment">// 可以设置为守护线程或设置优先级等</span><br>                <span class="hljs-comment">// t.setDaemon(true);</span><br>                <span class="hljs-keyword">return</span> t;<br>            &#125;<br>        &#125;;<br><br>        <span class="hljs-comment">// 创建线程池</span><br>        <span class="hljs-type">ThreadPoolExecutor</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadPoolExecutor</span>(<br>                corePoolSize,<br>                maxPoolSize,<br>                keepAliveTime,<br>                TimeUnit.SECONDS,<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="hljs-number">100</span>),<br>                namedThreadFactory<br>        );<br><br>        <span class="hljs-comment">// 提交任务</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) &#123;<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">taskNo</span> <span class="hljs-operator">=</span> i;<br>            executor.execute(() -&gt; &#123;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; 正在执行任务 &quot;</span> + taskNo);<br>            &#125;);<br>        &#125;<br><br>        <span class="hljs-comment">// 关闭线程池</span><br>        executor.shutdown();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>输出示例（线程名自定义）：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell">深色版本<br>MyCustomTh<span class="hljs-built_in">read-1</span> 正在执行任务 <span class="hljs-number">0</span><br>MyCustomTh<span class="hljs-built_in">read-2</span> 正在执行任务 <span class="hljs-number">1</span><br>MyCustomTh<span class="hljs-built_in">read-3</span> 正在执行任务 <span class="hljs-number">2</span><br>MyCustomTh<span class="hljs-built_in">read-1</span> 正在执行任务 <span class="hljs-number">3</span><br>MyCustomTh<span class="hljs-built_in">read-2</span> 正在执行任务 <span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="使用-Executors-defaultThreadFactory-的变种（可选）"><a href="#使用-Executors-defaultThreadFactory-的变种（可选）" class="headerlink" title="使用 Executors.defaultThreadFactory() 的变种（可选）"></a>使用 <code>Executors.defaultThreadFactory()</code> 的变种（可选）</h2><p>你也可以基于默认的 <code>ThreadFactory</code> 进行包装，比如 Apache Commons 或 Google Guava 提供的工具类（如 <code>ThreadFactoryBuilder</code>），可以更简洁地命名线程。</p>
+<p>例如使用 <strong>Guava</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.google.common.util.concurrent.ThreadFactoryBuilder;<br><br><span class="hljs-type">ThreadFactory</span> <span class="hljs-variable">factory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadFactoryBuilder</span>()<br>        .setNameFormat(<span class="hljs-string">&quot;my-pool-%d&quot;</span>)<br>        .setDaemon(<span class="hljs-literal">true</span>)<br>        .build();<br><br><span class="hljs-type">ExecutorService</span> <span class="hljs-variable">executor</span> <span class="hljs-operator">=</span> Executors.newFixedThreadPool(<span class="hljs-number">5</span>, factory);<br></code></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>是否推荐</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实现 <code>ThreadFactory</code> 接口</td>
+<td>推荐</td>
+<td>灵活、可控，适合生产环境</td>
+</tr>
+<tr>
+<td>使用 Guava 的 <code>ThreadFactoryBuilder</code></td>
+<td>推荐</td>
+<td>更加简洁，依赖第三方库</td>
+</tr>
+<tr>
+<td>默认线程工厂</td>
+<td>不推荐</td>
+<td>名称不直观，不利于排查问题</td>
+</tr>
+</tbody></table>
+<h1 id="在平时工作中怎么来制定你的核心线程数和最大线程数😶‍🌫️"><a href="#在平时工作中怎么来制定你的核心线程数和最大线程数😶‍🌫️" class="headerlink" title="在平时工作中怎么来制定你的核心线程数和最大线程数😶‍🌫️"></a>在平时工作中怎么来制定你的核心线程数和最大线程数😶‍🌫️</h1><p>在实际工作中，合理设置线程池的 <strong>核心线程数（corePoolSize）</strong> 和 <strong>最大线程数（maximumPoolSize）</strong> 是非常关键的。设置不合理会导致资源浪费、系统响应变慢甚至崩溃。下面是一些常见的思路和方法。</p>
+<p><strong>1.根据任务类型选择策略</strong></p>
+<ol>
+<li><strong>CPU密集型任务</strong></li>
+</ol>
+<ul>
+<li><p>特点：主要消耗CPU资源，如计算、加密、压缩等。</p>
+</li>
+<li><p>建议：</p>
+<ul>
+<li>核心线程数 ≈ CPU核数</li>
+<li>最大线程数 ≈ CPU核数 × 2（视情况）</li>
+<li>不需要太多线程，避免上下文切换开销过大</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> <span class="hljs-variable">corePoolSize</span> <span class="hljs-operator">=</span> Runtime.getRuntime().availableProcessors();<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>IO密集型任务</strong></li>
+</ol>
+<ul>
+<li><p>特点：大量等待IO完成（如网络请求、数据库查询、磁盘读写）</p>
+</li>
+<li><p>建议：</p>
+<ul>
+<li>可以适当增加线程数，因为很多线程处于等待状态</li>
+<li>核心线程数 &#x3D; CPU核数 × 2 或更高</li>
+<li>最大线程数可设为更高的值（如 50~200）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.结合任务队列分析负载</strong></p>
+<ul>
+<li>如果任务队列经常积压 → 增加核心线程数或最大线程数</li>
+<li>如果线程池频繁扩容 → 可能是 corePoolSize 设置太小</li>
+<li>如果 keepAliveTime 太短，非核心线程刚启动就销毁了 → 浪费资源</li>
+</ul>
+<p><strong>3.监控线程池</strong><br>建议在线上部署时，配合以下手段：</p>
+<ul>
+<li><p>使用 <code>ThreadPoolTaskExecutor</code>（Spring中常用）并暴露指标</p>
+</li>
+<li><p>结合 Prometheus + Grafana 监控：</p>
+<ul>
+<li>活跃线程数</li>
+<li>队列大小</li>
+<li>拒绝任务数</li>
+</ul>
+</li>
+<li><p>动态调整线程池参数（动态线程池）</p>
+</li>
+</ul>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>对Java线程池的理解和使用，是每位Java程序员的必备技能。</p>
+<p>这是后端面试常问的问题，建议各位结合自己的项目进行回答，面试官问你的优化方法也可以有更多的思路。如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="category-chain-item">Java并发编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" class="print-no-link">#Java并发编程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>面试官拷打我线程池，我这样回答....</div>
+      <div>https://maple525866.github.io/2025/06/22/面试官拷打我线程池，我这样回答/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%AE%B2%E8%A7%A3%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98Caffeine/" title="一站式讲解本地缓存Caffeine">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式讲解本地缓存Caffeine</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E6%83%B3%E4%B8%BASeata%E7%A4%BE%E5%8C%BA%E8%BF%9B%E8%A1%8C%E8%B4%A1%E7%8C%AE%EF%BC%9F%E8%BF%99%E5%87%A0%E7%82%B9%E4%BD%A0%E9%9C%80%E8%A6%81%E4%BA%86%E8%A7%A3/" title="想为Seata社区进行贡献？这几点你需要了解">
+                        <span class="hidden-mobile">想为Seata社区进行贡献？这几点你需要了解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

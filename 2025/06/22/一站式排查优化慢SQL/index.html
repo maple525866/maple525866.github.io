@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250615144521.jpg">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="maple">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="引言在我们后端日常开发测试中，常常会遇到一个SQL语句查询过慢而导致的整体接口响应速度变慢，用户体验不好。这时候如果确认接口变慢是因为慢SQL的原因，我们就需要对慢SQL进行排查优化。 识别慢SQL😵一个项目的SQL语句往往庞大而冗杂，那我们想要知道是哪几个SQL导致我们对应的接口变慢，该如何排查呢？ 一般常用以下方法进行排查 慢日志查询开启数据库的慢查询日志功能，记录执行时间超过指定阈值的 S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一站式排查优化慢SQL">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E6%8E%92%E6%9F%A5%E4%BC%98%E5%8C%96%E6%85%A2SQL/index.html">
+<meta property="og:site_name" content="maple">
+<meta property="og:description" content="引言在我们后端日常开发测试中，常常会遇到一个SQL语句查询过慢而导致的整体接口响应速度变慢，用户体验不好。这时候如果确认接口变慢是因为慢SQL的原因，我们就需要对慢SQL进行排查优化。 识别慢SQL😵一个项目的SQL语句往往庞大而冗杂，那我们想要知道是哪几个SQL导致我们对应的接口变慢，该如何排查呢？ 一般常用以下方法进行排查 慢日志查询开启数据库的慢查询日志功能，记录执行时间超过指定阈值的 S">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151343.jpg">
+<meta property="article:published_time" content="2025-06-22T07:23:25.000Z">
+<meta property="article:modified_time" content="2025-06-22T07:24:54.109Z">
+<meta property="article:author" content="maple">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151343.jpg">
+  
+  
+  
+  <title>一站式排查优化慢SQL - maple</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"maple525866.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>maple</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622151343.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="一站式排查优化慢SQL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-22 15:23" pubdate>
+          2025年6月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">一站式排查优化慢SQL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在我们后端日常开发测试中，常常会遇到一个SQL语句查询过慢而导致的整体接口响应速度变慢，用户体验不好。这时候如果确认接口变慢是因为慢SQL的原因，我们就需要对慢SQL进行排查优化。</p>
+<h1 id="识别慢SQL😵"><a href="#识别慢SQL😵" class="headerlink" title="识别慢SQL😵"></a>识别慢SQL😵</h1><p>一个项目的SQL语句往往庞大而冗杂，那我们想要知道是哪几个SQL导致我们对应的接口变慢，该如何排查呢？</p>
+<p>一般常用以下方法进行排查</p>
+<h2 id="慢日志查询"><a href="#慢日志查询" class="headerlink" title="慢日志查询"></a>慢日志查询</h2><p>开启数据库的慢查询日志功能，记录执行时间超过指定阈值的 SQL 语句。这是最常用的方法，可以帮助你快速找到需要优化的 SQL。</p>
+<ul>
+<li><strong>MySQL:</strong>  设置 <code>long_query_time</code> 参数，并开启 <code>slow_query_log</code>。</li>
+<li><strong>PostgreSQL:</strong>  设置 <code>log_min_duration_statement</code> 参数。</li>
+<li><strong>SQL Server:</strong>  使用 SQL Server Profiler 或 Extended Events 监控执行时间长的查询</li>
+</ul>
+<p>以MySQL为例，如何进行慢日志查询呢？</p>
+<h3 id="查看当前配置"><a href="#查看当前配置" class="headerlink" title="查看当前配置"></a><strong>查看当前配置</strong></h3><p>首先，你需要查看当前的 <code>long_query_time</code> 和 <code>slow_query_log</code> 的配置。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;long_query_time&#x27;</span>; <br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;slow_query_log&#x27;</span>;<br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;slow_query_log_file&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>long_query_time</code>：慢查询的阈值，单位为秒。默认值通常是 10 秒。</li>
+<li><code>slow_query_log</code>：是否开启慢查询日志。<code>ON</code> 表示开启，<code>OFF</code> 表示关闭。</li>
+<li><code>slow_query_log_file</code>：慢查询日志文件的路径</li>
+</ul>
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a><strong>修改配置</strong></h3><p>你可以通过以下两种方式修改配置：</p>
+<ul>
+<li><p><strong>修改 MySQL 配置文件 (my.cnf 或 my.ini)：</strong></p>
+<ol>
+<li>找到 MySQL 的配置文件。在 Linux 系统中，通常位于 <code>/etc/my.cnf</code> 或 <code>/etc/mysql/my.cnf</code>。在 Windows 系统中，通常位于 MySQL 安装目录下的 <code>my.ini</code> 文件。</li>
+<li>使用文本编辑器打开配置文件，找到 <code>[mysqld]</code> 部分（如果没有，则添加该部分）。</li>
+<li>在 <code>[mysqld]</code> 部分添加或修改以下配置：</li>
+</ol>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[mysqld]</span><br><span class="hljs-attr">long_query_time</span> = <span class="hljs-number">1</span><br><span class="hljs-attr">slow_query_log</span> = <span class="hljs-number">1</span><br><span class="hljs-attr">slow_query_log_file</span> = /var/log/mysql/mysql-slow.log<br><span class="hljs-attr">log_output</span> = FILE<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>long_query_time</code>：设置为你希望的慢查询阈值，例如 1 秒。</p>
+</li>
+<li><p><code>slow_query_log</code>：设置为 <code>1</code>，表示开启慢查询日志。</p>
+</li>
+<li><p><code>slow_query_log_file</code>：设置慢查询日志文件的路径。请确保 MySQL 用户对该目录有写入权限。</p>
+</li>
+<li><p><code>log_output</code>：设置日志输出方式为文件。</p>
+</li>
+</ul>
+<ol start="4">
+<li>保存配置文件，并重启 MySQL 服务，使配置生效。</li>
+</ol>
+</li>
+<li><p><strong>使用 SET GLOBAL 命令动态修改：</strong></p>
+<ol>
+<li>使用具有 <code>SUPER</code> 权限的 MySQL 用户登录。</li>
+<li>执行以下 SQL 语句：</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> long_query_time <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> slow_query_log <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;ON&#x27;</span>;<br><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> slow_query_log_file <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;/var/log/mysql/mysql-slow.log&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>这些设置会立即生效，但 MySQL 服务重启后会失效。如果希望永久生效，仍然需要修改配置文件。</li>
+</ul>
+</li>
+</ul>
+<h3 id="配置生效"><a href="#配置生效" class="headerlink" title="配置生效"></a><strong>配置生效</strong></h3><ul>
+<li><p><strong>如果修改了配置文件，需要重启 MySQL 服务：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> systemctl restart mysql  <span class="hljs-comment"># Linux (systemd)</span><br><span class="hljs-built_in">sudo</span> service mysql restart    <span class="hljs-comment"># Linux (SysVinit)</span><br>net stop mysql                <span class="hljs-comment"># Windows</span><br>net start mysql               <span class="hljs-comment"># Windows</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p><strong>如果使用了 SET GLOBAL 命令，不需要重启 MySQL 服务，配置会立即生效。</strong></p>
+</li>
+</ul>
+<h3 id="验证配置"><a href="#验证配置" class="headerlink" title="验证配置"></a><strong>验证配置</strong></h3><p>重新执行以下 SQL 语句，确认配置是否生效：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;long_query_time&#x27;</span>;<br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;slow_query_log&#x27;</span>;<br><span class="hljs-keyword">SHOW</span> VARIABLES <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;slow_query_log_file&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="分析慢查询日志"><a href="#分析慢查询日志" class="headerlink" title="分析慢查询日志"></a><strong>分析慢查询日志</strong></h3><ul>
+<li><p>慢查询日志会记录执行时间超过 <code>long_query_time</code> 的 SQL 语句。</p>
+</li>
+<li><p>你可以使用文本编辑器打开慢查询日志文件，查看慢 SQL 语句。</p>
+</li>
+<li><p>也可以使用 <code>mysqldumpslow</code> 工具分析慢查询日志，找出执行频率最高的慢 SQL 语句。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">mysqldumpslow -s t -a /var/log/mysql/mysql-slow.log<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-s t</code>：按照查询时间排序。</li>
+<li><code>-a</code>：不将数字和字符串抽象化。</li>
+</ul>
+</li>
+</ul>
+<p><strong>注意事项</strong></p>
+<ul>
+<li><code>long_query_time</code> 的值应该根据你的应用场景进行调整。如果你的应用对响应时间要求很高，可以将 <code>long_query_time</code> 设置为更小的值。</li>
+<li>开启慢查询日志会增加 MySQL 的 I&#x2F;O 负担，因此不建议在生产环境中长时间开启。可以在需要排查问题时临时开启，问题解决后及时关闭</li>
+</ul>
+<h1 id="分析慢SQL😯"><a href="#分析慢SQL😯" class="headerlink" title="分析慢SQL😯"></a>分析慢SQL😯</h1><p>当我们通过慢SQL日志了解到了哪几个SQL语句是慢SQL之后，就需要对其进行分析。以MySQL为例</p>
+<h2 id="获取执行计划："><a href="#获取执行计划：" class="headerlink" title="获取执行计划："></a><strong>获取执行计划：</strong></h2><p>使用 <code>EXPLAIN</code> 命令，查看 SQL 语句的执行计划。执行计划可以告诉你数据库是如何执行 SQL 语句的，包括使用了哪些索引、表连接方式等。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">EXPLAIN <span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">WHERE</span> customer_id <span class="hljs-operator">=</span> <span class="hljs-number">123</span> <span class="hljs-keyword">AND</span> order_date <span class="hljs-keyword">BETWEEN</span> <span class="hljs-string">&#x27;2023-01-01&#x27;</span> <span class="hljs-keyword">AND</span> <span class="hljs-string">&#x27;2023-01-31&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="分析执行计划："><a href="#分析执行计划：" class="headerlink" title="分析执行计划："></a><strong>分析执行计划：</strong></h2><p>获取执行计划之后，我们需要通过几个核心参数了解具体SQL语句执行情况。</p>
+<ul>
+<li><p>possible_keys: 该SQL语句可能会用到的索引</p>
+</li>
+<li><p>key: 该SQL语句实际上用到的索引</p>
+</li>
+<li><p>type: 执行该SQL语句的扫描方式</p>
+</li>
+</ul>
+<p>其中type我们尤其需要注意，扫描方式效率从低到高依次为ALL，index，range，ref，eq_ref,const</p>
+<p>这个参数最好在range及以上，效率越高越好</p>
+<h1 id="优化慢SQL🤩"><a href="#优化慢SQL🤩" class="headerlink" title="优化慢SQL🤩"></a>优化慢SQL🤩</h1><ul>
+<li><p><strong>索引优化：</strong></p>
+<ul>
+<li><strong>添加索引：</strong>  为经常用于查询的字段添加索引。</li>
+<li><strong>复合索引：</strong>  考虑使用复合索引，可以提高多字段查询的性能。</li>
+<li><strong>覆盖索引：</strong>  尽量使用覆盖索引，避免回表查询。</li>
+<li><strong>删除无用索引：</strong>  删除不再使用的索引，减少索引维护的开销。</li>
+<li><strong>防止索引失效：</strong> 正确使用索引，防止索引失效</li>
+</ul>
+</li>
+<li><p><strong>SQL 语句优化：</strong></p>
+<ul>
+<li><strong>避免使用 <code>SELECT *</code>：</strong>  只查询需要的字段，减少 I&#x2F;O 开销。</li>
+<li><strong>避免在 <code>WHERE</code> 子句中使用函数：</strong>  函数会导致索引失效。</li>
+<li><strong>使用 <code>JOIN</code> 代替子查询：</strong>  <code>JOIN</code> 通常比子查询更有效率。</li>
+<li><strong>优化 <code>LIKE</code> 查询：</strong>  避免使用 <code>LIKE &#39;%keyword%&#39;</code>，可以使用全文索引或倒排索引。</li>
+<li><strong>使用批量操作代替单条操作：</strong>  批量插入、更新、删除操作可以减少网络开销。</li>
+<li><strong>避免在循环中执行 SQL 语句：</strong>  将循环中的 SQL 语句合并成一条 SQL 语句。</li>
+</ul>
+</li>
+<li><p><strong>数据库配置优化：</strong></p>
+<ul>
+<li><strong>调整缓冲区大小：</strong>  调整数据库的缓冲区大小，可以提高数据访问速度。</li>
+<li><strong>调整连接池大小：</strong>  调整数据库连接池的大小，可以提高并发处理能力。</li>
+<li><strong>优化操作系统参数：</strong>  优化操作系统的 TCP 参数、I&#x2F;O 参数等，可以提高数据库的整体性能。</li>
+</ul>
+</li>
+</ul>
+<h1 id="示例😍"><a href="#示例😍" class="headerlink" title="示例😍"></a>示例😍</h1><p>给出一个用复合索引来优化慢SQL的例子：</p>
+<p>假设你发现以下 SQL 语句执行很慢</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> orders <span class="hljs-keyword">WHERE</span> customer_id <span class="hljs-operator">=</span> <span class="hljs-number">123</span> <span class="hljs-keyword">AND</span> order_date <span class="hljs-keyword">BETWEEN</span> <span class="hljs-string">&#x27;2023-01-01&#x27;</span> <span class="hljs-keyword">AND</span> <span class="hljs-string">&#x27;2023-01-31&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>获取执行计划：</strong>  使用 <code>EXPLAIN</code> 命令查看执行计划，发现没有使用索引。</li>
+<li><strong>分析执行计划：</strong>  发现全表扫描了 <code>orders</code> 表。</li>
+<li><strong>优化：</strong>  为 <code>customer_id</code> 和 <code>order_date</code> 字段添加复合索引：</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> INDEX idx_customer_order_date <span class="hljs-keyword">ON</span> orders (customer_id, order_date);<br></code></pre></td></tr></table></figure>
+
+<p><strong>验证：</strong>  再次执行 SQL 语句，并查看执行计划，发现使用了索引，执行速度明显提高</p>
+<p><a target="_blank" rel="noopener" href="https://mermaid-live.nodejs.cn/edit#pako:eNpVk8tu2kAUhl8FzSqVAJmxScCLSgnkQgKoiy6qGhZW7QSkgJFrpLYWEioppUpJSJMQ2qRBRaJkQ6h6SXOB8jKesVn1FTp4gLhezZn5zv__R57RwTNFkgEPtlQxl3I9DieyLvItCqhfRJ3dpMvjeehamkO1nnl0gd-0cLNt9Vr4pI2GJw8ou2QzIR03eqj2FZ-9m2HW5Tc0OP7bbxYoGSKki2B2Q1iw9n6j_fqMTjogImRDy4J5d4g_NydnYXtzZc4YDEmc5SePoouROKqU8Xlt6vgFVT5Mgq3Y9OokGO0xbsuoVhkVX5ufdsyfLdR3xFt1Oq8JRr-B3tcpZF3-IdJJBzcdI6JT53HO8x1qRRzMWvleOOIUXhdGb6tjlAbuddF-O-ngpsIbOi52rNLAuKsa11Wih0s_7iXXKEOLdWex4RSJClaxZH08oMOb_UPUbeCzW1S5wpW6NTw1rou426aTJh3907AxAf_atXrH6OZqVLowB98nUJSe0iJmF3HBPD3Aex2aGh_dEPkJHf__XwI3uW1pCfCampfdICOrGXFcAn2MJ4CWkjNyAvBkKcmbYn5bS4BEtkDacmL2qaJkpp2qkt9KAX5T3H5OqnxOEjU5nBbJVc7MdlU5K8lqSMlnNcD7fD6_rQJ4HbwAPIScl1mAkOEWIMtwnBu8BLwHBr1BBkL_gj_IcgwD2fmCG7yyfX1eNsAGGR8HOQYG_Gxg3g1kKa0paow-I_s1Ff4BzyFumg"><img src="https://i-blog.csdnimg.cn/img_convert/9ea65d6c1c5e7fca49ac252a8f5b1a98.jpeg" srcset="/img/loading.gif" lazyload></a></p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>这是后端面试常问的问题，建议各位结合自己的项目进行回答，面试官问你的优化方法也可以有更多的思路。如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="print-no-link">#数据库</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>一站式排查优化慢SQL</div>
+      <div>https://maple525866.github.io/2025/06/22/一站式排查优化慢SQL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>maple</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3%E5%90%8E%E7%AB%AF%E6%8E%A5%E5%8F%A3%E6%85%A2%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E4%BC%98%E5%8C%96/" title="一站式解决后端接口慢如何排查优化">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一站式解决后端接口慢如何排查优化</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3%E7%BC%93%E5%AD%98%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7/" title="一站式解决缓存与数据库数据一致性">
+                        <span class="hidden-mobile">一站式解决缓存与数据库数据一致性</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
