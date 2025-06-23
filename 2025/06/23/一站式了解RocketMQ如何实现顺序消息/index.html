@@ -19,25 +19,25 @@
   <meta name="author" content="maple">
   <meta name="keywords" content="">
   
-    <meta name="description" content="引言上次我们讲了本地缓存guava，那么有没有比它更加优秀的本地缓存呢？有的，兄弟，有的。这次我们来讲本地缓存Caffeine。 本地缓存的必要性🤤不是有了像redis这样的分布式缓存了吗，为什么还要本地缓存呢？因为本地缓存有这样的优势:  提升性能   减少延迟：通过在应用层引入本地缓存作为第一级缓存（L1），可以直接在进程内部快速响应查询请求，而不需要每次都访问更慢的外部存储（如远程缓存或数">
+    <meta name="description" content="引言每种MQ对顺序消息的实现都各有差异，我们今天主要来讲讲RocketMQ是如何实现顺序消息的。请注意，由于全局顺序消息不常用，我们这里提到的顺序消息都是指分区顺序消息。 顺序消息的定义😣RocketMQ中的顺序消息分为全局顺序消息和分区顺序消息。 全局顺序消息全局顺序消息是指某个Topic下的所有消息都能够按照发送的顺序被消费。这里稍微解释一下，为什么全局顺序消息不常用，因为全局顺序消息通常意">
 <meta property="og:type" content="article">
-<meta property="og:title" content="一站式讲解本地缓存Caffeine">
-<meta property="og:url" content="https://maple525866.github.io/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%AE%B2%E8%A7%A3%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98Caffeine/index.html">
+<meta property="og:title" content="一站式了解RocketMQ如何实现顺序消息">
+<meta property="og:url" content="https://maple525866.github.io/2025/06/23/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3RocketMQ%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%A1%BA%E5%BA%8F%E6%B6%88%E6%81%AF/index.html">
 <meta property="og:site_name" content="maple">
-<meta property="og:description" content="引言上次我们讲了本地缓存guava，那么有没有比它更加优秀的本地缓存呢？有的，兄弟，有的。这次我们来讲本地缓存Caffeine。 本地缓存的必要性🤤不是有了像redis这样的分布式缓存了吗，为什么还要本地缓存呢？因为本地缓存有这样的优势:  提升性能   减少延迟：通过在应用层引入本地缓存作为第一级缓存（L1），可以直接在进程内部快速响应查询请求，而不需要每次都访问更慢的外部存储（如远程缓存或数">
+<meta property="og:description" content="引言每种MQ对顺序消息的实现都各有差异，我们今天主要来讲讲RocketMQ是如何实现顺序消息的。请注意，由于全局顺序消息不常用，我们这里提到的顺序消息都是指分区顺序消息。 顺序消息的定义😣RocketMQ中的顺序消息分为全局顺序消息和分区顺序消息。 全局顺序消息全局顺序消息是指某个Topic下的所有消息都能够按照发送的顺序被消费。这里稍微解释一下，为什么全局顺序消息不常用，因为全局顺序消息通常意">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622160250.jpg">
-<meta property="article:published_time" content="2025-06-22T08:03:45.000Z">
-<meta property="article:modified_time" content="2025-06-22T08:05:58.259Z">
+<meta property="og:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250623152130.jpg">
+<meta property="article:published_time" content="2025-06-23T07:19:15.000Z">
+<meta property="article:modified_time" content="2025-06-23T07:23:46.203Z">
 <meta property="article:author" content="maple">
 <meta property="article:tag" content="后端">
-<meta property="article:tag" content="后台缓存">
+<meta property="article:tag" content="RocketMQ">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622160250.jpg">
+<meta name="twitter:image" content="https://maple525866.github.io/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250623152130.jpg">
   
   
   
-  <title>一站式讲解本地缓存Caffeine - maple</title>
+  <title>一站式了解RocketMQ如何实现顺序消息 - maple</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -197,13 +197,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250622160250.jpg') no-repeat center center; background-size: cover;">
+     style="background: url('/img/bg/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250623152130.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="一站式讲解本地缓存Caffeine"></span>
+            <span id="subtitle" data-typed-text="一站式了解RocketMQ如何实现顺序消息"></span>
           
         </div>
 
@@ -214,8 +214,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-06-22 16:03" pubdate>
-          2025年6月22日 下午
+        <time datetime="2025-06-23 15:19" pubdate>
+          2025年6月23日 下午
         </time>
       </span>
     
@@ -274,75 +274,47 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">一站式讲解本地缓存Caffeine</h1>
+            <h1 id="seo-header">一站式了解RocketMQ如何实现顺序消息</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>上次我们讲了本地缓存guava，那么有没有比它更加优秀的本地缓存呢？有的，兄弟，有的。这次我们来讲本地缓存Caffeine。</p>
-<h1 id="本地缓存的必要性🤤"><a href="#本地缓存的必要性🤤" class="headerlink" title="本地缓存的必要性🤤"></a>本地缓存的必要性🤤</h1><p>不是有了像redis这样的分布式缓存了吗，为什么还要本地缓存呢？因为本地缓存有这样的优势:</p>
-<ol>
-<li><strong>提升性能</strong></li>
-</ol>
+                <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>每种MQ对顺序消息的实现都各有差异，我们今天主要来讲讲RocketMQ是如何实现顺序消息的。请注意，由于全局顺序消息不常用，我们这里提到的顺序消息都是指分区顺序消息。</p>
+<h1 id="顺序消息的定义😣"><a href="#顺序消息的定义😣" class="headerlink" title="顺序消息的定义😣"></a>顺序消息的定义😣</h1><p>RocketMQ中的顺序消息分为全局顺序消息和分区顺序消息。</p>
+<h2 id="全局顺序消息"><a href="#全局顺序消息" class="headerlink" title="全局顺序消息"></a>全局顺序消息</h2><p>全局顺序消息是指某个Topic下的所有消息都能够按照发送的顺序被消费。这里稍微解释一下，为什么全局顺序消息不常用，因为<strong>全局顺序消息通常意味着在一个 Topic 下只有一个队列</strong>。如果要求整个 Topic 的所有消息都严格有序，那么必须确保所有的消息都发送到同一个队列，并且由同一个消费者实例按序消费。这就意味着，在这种情况下，该 Topic 只能配置一个队列。</p>
+<p>然而，这也意味着性能受限于单个队列和单个消费者的处理能力，因为不能利用多队列带来的并行处理能力。因此，全局顺序消息适用于对<strong>顺序要求极高、但吞吐量需求不高</strong>的场景</p>
+<p>所以大多数应用场景，更常见的是使用分区顺序消息，即保证某些类型的消息有序即可。</p>
+<h2 id="分区顺序消息"><a href="#分区顺序消息" class="headerlink" title="分区顺序消息"></a>分区顺序消息</h2><p>分区顺序消息则是指在消息被划分到不同的队列中时，每个队列内部的消息能够保证顺序消费。实际应用中，分区顺序消息更为常用，因为它能在保证一定顺序的同时提供<strong>更好的并发性能</strong>。</p>
+<p>为了保证消息的顺序性，对于需要保证顺序的消息，生产者发送消息时必须确保<strong>相同业务逻辑的消息发送到同一个队列</strong>中。这通常是通过消息的<strong>Key进行哈希取模</strong>来决定消息发送到哪个队列。同时，消费者也需要采用<strong>单线程模式</strong>消费该队列中的消息，避免多线程环境下由于竞争导致的消息顺序错乱。</p>
+<h1 id="生产者端🤓"><a href="#生产者端🤓" class="headerlink" title="生产者端🤓"></a>生产者端🤓</h1><p>RocketMQ从生产者端和消费者端两个方面来保证了分区顺序消息机制，我们也从这两个方面来讲。</p>
+<p>RocketMQ在生产者端通过<code>MessageQueueSelector</code>来保证顺序消息，传入orderId，<code>id % mqs.size()</code>保证消息会传入同一个队列，代表属于这个订单id（具体业务）的消息都传入这个队列，这里就可以保证队列局部有序</p>
+<p><strong>MessageQueueSelector 接口介绍</strong></p>
 <ul>
-<li><strong>减少延迟</strong>：通过在应用层引入本地缓存作为第一级缓存（L1），可以直接在进程内部快速响应查询请求，而不需要每次都访问更慢的外部存储（如远程缓存或数据库）。这显著减少了响应时间。</li>
-<li><strong>减少IO</strong>：由于本地缓存可以命中部分数据，减少了与分布式缓存的交互，也就减少了IO次数，进而减少了网络开销</li>
+<li><code>mqs</code>: 当前 Topic 对应的所有队列列表。</li>
+<li><code>msg</code>: 当前要发送的消息对象。</li>
+<li><code>arg</code>: 用户自定义参数，可以在发送消息时传入。</li>
+<li>返回值：选择出的一个 <code>MessageQueue</code>，即这条消息将被发送到该队列。</li>
 </ul>
-<ol start="2">
-<li><strong>减轻后端压力</strong></li>
-</ol>
-<ul>
-<li><strong>降低负载</strong>：多级缓存策略可以有效减少对后端数据库或其他外部服务的直接访问次数，从而减轻这些资源的压力，提高整体系统的稳定性和可用性。</li>
-</ul>
-<ol start="3">
-<li><strong>增加缓存命中率</strong></li>
-</ol>
-<ul>
-<li><strong>优化缓存利用率</strong>：不同的缓存级别可以根据其特点存储不同热度的数据。例如，本地缓存可以存放最常访问的数据，而分布式缓存则用于存放相对较少访问但仍然重要的数据。这种方式能够最大化利用各个层级缓存的优势，提高整体缓存命中率。</li>
-</ul>
-<ol start="4">
-<li><strong>容错能力增强</strong></li>
-</ol>
-<ul>
-<li><strong>提供冗余</strong>：当一个级别的缓存发生故障或失效时，其他级别的缓存仍然可以提供一定程度的服务，避免了单点失败带来的严重影响，提高了系统的容错能力和可靠性。</li>
-</ul>
-<ol start="5">
-<li><strong>灵活性与可扩展性</strong></li>
-</ol>
-<ul>
-<li><strong>易于调整和扩展</strong>：根据业务需求的变化，可以灵活地调整各级缓存的大小、过期策略等参数，甚至添加新的缓存层次，以适应不断变化的工作负载。</li>
-</ul>
-<h1 id="多级缓存访问流程🥹"><a href="#多级缓存访问流程🥹" class="headerlink" title="多级缓存访问流程🥹"></a>多级缓存访问流程🥹</h1><p>在<strong>多级缓存架构</strong>中，一般的设计模式是：</p>
-<blockquote>
-<p><strong>先查本地缓存（L1缓存） → 未命中则查分布式缓存（L2缓存） → 还未命中才查询数据库。</strong></p>
-</blockquote>
-<p>这种设计的目的在于<strong>兼顾性能与一致性</strong></p>
-<p><img src="https://i-blog.csdnimg.cn/direct/5c84a039bc0a4a94963f0efc739c633b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
-<h1 id="使用Caffeine作为本地缓存😶‍🌫️"><a href="#使用Caffeine作为本地缓存😶‍🌫️" class="headerlink" title="使用Caffeine作为本地缓存😶‍🌫️"></a>使用Caffeine作为本地缓存😶‍🌫️</h1><p>首先要注意的是，Caffeine本身并不提供注解来使用缓存功能。Caffeine 提供了 <code>newBuilder()</code> API 来以编程方式配置和使用缓存。</p>
-<p>所以我们这里可以使用<strong>Spring Cache 集成 Caffeine</strong>的方式来使用Caffeine的本地缓存功能，这样非常方便，因为它允许通过注解来（如 <code>@Cacheable</code>、<code>@CachePut</code> 和 <code>@CacheEvict</code>）来声明性地配置缓存</p>
-<h2 id="添加Spring-Cache-和-Guava-依赖"><a href="#添加Spring-Cache-和-Guava-依赖" class="headerlink" title="添加Spring Cache 和 Guava 依赖"></a>添加<strong>Spring Cache 和 Guava 依赖</strong></h2><p>在pom文件添加以下依赖：确保版本号与你的项目兼容</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-cache<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.github.ben-manes.caffeine<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>caffeine<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">MessageQueueSelector</span> &#123;<br>    MessageQueue <span class="hljs-title function_">select</span><span class="hljs-params">(<span class="hljs-keyword">final</span> List&lt;MessageQueue&gt; mqs, <span class="hljs-keyword">final</span> Message msg, <span class="hljs-keyword">final</span> Object arg)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h2 id="配置-Caffeine-缓存"><a href="#配置-Caffeine-缓存" class="headerlink" title="配置 Caffeine 缓存"></a>配置 Caffeine 缓存</h2><p>和guava不同的是，guava需要配置类才可以使用注解开发，而caffeine由于和Spring高度结合，直接在yml文件进行配置即可</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cache:</span><br>    <span class="hljs-attr">type:</span> <span class="hljs-string">caffeine</span><br>    <span class="hljs-attr">caffeine:</span><br>      <span class="hljs-attr">spec:</span> <span class="hljs-string">maximumSize=500,expireAfterAccess=60s</span><br></code></pre></td></tr></table></figure>
+<p><strong>使用MessageQueueSelector</strong></p>
+<p>下面是一个典型的使用 <code>MessageQueueSelector</code> 来保证订单消息顺序性的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 发送消息时指定 selector</span><br><span class="hljs-type">String</span> <span class="hljs-variable">orderId</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;ORDER_20250623_001&quot;</span>;<br>producer.send(msg, <span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageQueueSelector</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> MessageQueue <span class="hljs-title function_">select</span><span class="hljs-params">(List&lt;MessageQueue&gt; mqs, Message msg, Object arg)</span> &#123;<br>        <span class="hljs-type">Integer</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span> (Integer) arg;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">index</span> <span class="hljs-operator">=</span> id % mqs.size();<br>        <span class="hljs-keyword">return</span> mqs.get(index);<br>    &#125;<br>&#125;, orderId.hashCode());<br></code></pre></td></tr></table></figure>
 
-<p>当然，你想使用配置类来实现更细粒度的控制或者有多个缓存管理器时，可以通过创建一个配置类来指定缓存管理器。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span><br><span class="hljs-meta">@EnableCaching</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CacheConfig</span> &#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> CacheManager <span class="hljs-title function_">cacheManager</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">CaffeineCacheManager</span> <span class="hljs-variable">cacheManager</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CaffeineCacheManager</span>();<br>        cacheManager.setCaffeine(caffeineCacheBuilder());<br>        <span class="hljs-keyword">return</span> cacheManager;<br>    &#125;<br><br>    Caffeine&lt;Object, Object&gt; <span class="hljs-title function_">caffeineCacheBuilder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> Caffeine.newBuilder()<br>                .expireAfterWrite(<span class="hljs-number">60</span>, TimeUnit.SECONDS)<br>                .maximumSize(<span class="hljs-number">100</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>在这个配置类中：</p>
+<p>在这个例子中，所有具有相同 <code>orderId</code> 的消息都会被发送到同一个队列中，从而保证了这些消息在消费端是有序的。</p>
+<h1 id="消费者端😎"><a href="#消费者端😎" class="headerlink" title="消费者端😎"></a>消费者端😎</h1><p>光有生产者用 <code>MessageQueueSelector</code> 把消息发到固定队列还不够，还需要消费者端配合才能保证顺序消费：</p>
 <ul>
-<li>使用了 <code>@EnableCaching</code> 注解启用缓存。</li>
-<li>定义了一个 <code>cacheManager()</code> 方法返回一个 <code>CaffeineCacheManager</code> 实例，并设置了 Caffeine 缓存构建器。</li>
-<li>在 <code>caffeineCacheBuilder()</code> 方法中，配置了缓存的有效期和最大容量等参数。</li>
+<li>消费者必须采用 <strong>单线程消费模式</strong> 来消费每个队列的消息。</li>
+<li>RocketMQ 默认使用并发消费（多线程），所以需要设置 <code>consumeThreadMin</code> 和 <code>consumeThreadMax</code> 为 1，或者使用 <code>MessageListenerOrderly</code> 来监听消息。</li>
 </ul>
-<p>这种方式提供了更大的灵活性，允许你根据应用的需求定制缓存的行为。</p>
-<h2 id="启用缓存"><a href="#启用缓存" class="headerlink" title="启用缓存"></a>启用缓存</h2><p>如果你没有进行创建配置类，就需要在你的主应用程序类或配置类上添加 <code>@EnableCaching</code> 注解以启用缓存功能：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-meta">@EnableCaching</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">YourApplication</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(YourApplication.class, args);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>ps：<code>MessageListenerOrderly</code> 保证的是：<strong>同一个队列中的消息，在一个消费者组内，只被同一个消费者实例串行消费</strong></p>
+<p>它确保每个队列的消息只能被该消费组中的一个消费者实例消费，并且是<strong>串行消费</strong>（即一条一条地处理，不并发），这样可以保证同一个队列中消息的顺序性。</p>
+<p>那么同一个消费者在处理完这个一系列业务消息之前，不能处理其他队列的消息吗？虽然 <code>MessageListenerOrderly</code> 确保了单个 <code>MessageQueue</code> 内的消息是串行处理的，但它并不限制整个消费者实例同时处理多个不同的 <code>MessageQueue</code>。也就是说，不同 <code>MessageQueue</code> 上的消息仍然可以并行处理，只是在同一时间点上，每个 <code>MessageQueue</code> 只能由一个线程进行消费</p>
+<p>示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">consumer.registerMessageListener(<span class="hljs-keyword">new</span> <span class="hljs-title class_">MessageListenerOrderly</span>() &#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> ConsumeConcurrentlyStatus <span class="hljs-title function_">consumeMessage</span><span class="hljs-params">(List&lt;MessageExt&gt; msgs, MessageListenerOrderly.ConcurrentlyTopicSubSet context)</span> &#123;<br>        <span class="hljs-keyword">for</span> (MessageExt msg : msgs) &#123;<br>            System.out.println(<span class="hljs-string">&quot;消费消息: &quot;</span> + <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(msg.getBody()));<br>        &#125;<br>        <span class="hljs-keyword">return</span> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;<br>    &#125;<br>&#125;);<br></code></pre></td></tr></table></figure>
 
-<h2 id="使用缓存注解"><a href="#使用缓存注解" class="headerlink" title="使用缓存注解"></a>使用缓存注解</h2><p>现在你可以在你的服务层方法上使用 Spring 的缓存注解，比如 <code>@Cacheable</code>, <code>@CachePut</code>, 和 <code>@CacheEvict</code> 等等，以便根据需要控制缓存的行为。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">YourService</span> &#123;<br><br>    <span class="hljs-meta">@Cacheable(&quot;books&quot;)</span><br>    <span class="hljs-keyword">public</span> Book <span class="hljs-title function_">findBook</span><span class="hljs-params">(ISBN isbn)</span> &#123;<br>        <span class="hljs-comment">// 方法逻辑...</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>如果想要看详细的Spring缓存注解介绍，可以看我的关于guava本地缓存的介绍，因为已经讲过，这里就不再重复。</p>
-<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
+<h1 id="总结❤️"><a href="#总结❤️" class="headerlink" title="总结❤️"></a>总结❤️</h1><p>这就是RocketMQ实现顺序消息的解析</p>
+<p>如果你看了这篇文章有收获可以点赞+关注+收藏🤩，这是对笔者更新的最大鼓励！如果你有更多方案或者文章中有错漏之处，请在评论区提出帮助笔者勘误，祝你拿到更好的offer！</p>
 
                 
               </div>
@@ -361,7 +333,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E5%90%8E%E5%8F%B0%E7%BC%93%E5%AD%98/" class="category-chain-item">后台缓存</a>
+  <a href="/categories/RocketMQ/" class="category-chain-item">RocketMQ</a>
   
   
 
@@ -378,7 +350,7 @@
       
         <a href="/tags/%E5%90%8E%E7%AB%AF/" class="print-no-link">#后端</a>
       
-        <a href="/tags/%E5%90%8E%E5%8F%B0%E7%BC%93%E5%AD%98/" class="print-no-link">#后台缓存</a>
+        <a href="/tags/RocketMQ/" class="print-no-link">#RocketMQ</a>
       
     </div>
   
@@ -390,8 +362,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>一站式讲解本地缓存Caffeine</div>
-      <div>https://maple525866.github.io/2025/06/22/一站式讲解本地缓存Caffeine/</div>
+      <div>一站式了解RocketMQ如何实现顺序消息</div>
+      <div>https://maple525866.github.io/2025/06/23/一站式了解RocketMQ如何实现顺序消息/</div>
     </div>
     <div class="license-meta">
       
@@ -403,7 +375,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2025年6月22日</div>
+          <div>2025年6月23日</div>
         </div>
       
       
@@ -435,18 +407,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/06/23/%E4%B8%80%E7%AB%99%E5%BC%8F%E4%BA%86%E8%A7%A3RocketMQ%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E9%A1%BA%E5%BA%8F%E6%B6%88%E6%81%AF/" title="一站式了解RocketMQ如何实现顺序消息">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">一站式了解RocketMQ如何实现顺序消息</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2025/06/22/%E9%9D%A2%E8%AF%95%E5%AE%98%E6%8B%B7%E6%89%93%E6%88%91%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%8C%E6%88%91%E8%BF%99%E6%A0%B7%E5%9B%9E%E7%AD%94/" title="面试官拷打我线程池，我这样回答....">
-                        <span class="hidden-mobile">面试官拷打我线程池，我这样回答....</span>
+                      <a href="/2025/06/22/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%AE%B2%E8%A7%A3%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98Caffeine/" title="一站式讲解本地缓存Caffeine">
+                        <span class="hidden-mobile">一站式讲解本地缓存Caffeine</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
